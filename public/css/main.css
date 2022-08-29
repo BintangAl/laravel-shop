@@ -1,0 +1,151 @@
+body{background-color: #F5F5F5 !important;}
+/* Font */
+.overpass {font-family: 'Overpass', sans-serif !important;}
+.sans{font-family: sans-serif !important;}
+
+/* Background */
+.bg-main {background-color: #6435b1 !important;}
+.bg-main-gradient{
+    background: rgb(67,37,117) !important;
+    background: linear-gradient(180deg, rgba(67,37,117,1) 0%, rgba(85,49,152,1) 35%, rgba(100,53,177,1) 100%) !important;
+}
+.bg-main-50{background-color: #6435b143 !important;}
+.bg-main-50:hover{background-color: #6435b125 !important;}
+
+.bg-none{background-color: transparent !important;}
+
+.bg-white {background-color: #fff;}
+.bg-black-50 {background-color: rgba(0, 0, 0, 0.487);}
+
+.bg-gray{background-color: #ddd !important;}
+.bg-gray-hover:hover{background-color: #ddd !important; transition: 0.3s;}
+
+.bg-input-focus{background-color: #EEF2F5 !important;}
+
+/* Border */
+.border-main{border: 1px solid #6435b1 !important;}
+.border-main-bottom{border-bottom: 2px solid #6435b1 !important;}
+.border-gray-bottom-dash{border-bottom: 1px dashed #aaa !important;}
+
+/* Text */
+.text-main{color: #6435b1 !important;}
+.text-justify{text-align: justify !important;}
+.text-light-green{color: #12e131 !important;}
+.text-gray{color: #aaa !important;}
+.text-dark-gray{color: rgb(84, 84, 84) !important;}
+
+.text-main-hover:hover{color: #6435b1 !important; transition: 0.3s;}
+
+/* Font-size */
+.fs-xsmall{font-size: 12px !important;}
+.fs-small{font-size: 14px !important;}
+
+/* Transform */
+.w-101{width: 100px !important;}
+.w-110{width: 110px !important;}
+.w-125{width: 124px !important;}
+.w-150{width: 150px !important;}
+.w-175{width: 175px !important;}
+.w-200{width: 200px !important;}
+
+.h-full{height: 100% !important;}
+.h-101{height: 100px !important;}
+.h-125{height: 125px !important;}
+.h-150{height: 150px !important;}
+.h-200{height: 200px !important;}
+.h-225{height: 225px !important;}
+.h-250{height: 250px !important;}
+
+/* Set */
+.pointer{user-select: none; cursor: pointer;}
+.select-none{user-select: none;}
+
+.bg-image {
+    background-position: center !important;
+    background-repeat: no-repeat !important; 
+    background-size: cover !important;
+}
+
+.arrow{
+    width: 30px;
+    height: 30px;
+    position: absolute;
+    margin-top: 50px;
+    color: #7b7b7b;
+    box-shadow: 1px 1px 5px 1px rgba(0, 0, 0, 0.405);
+    cursor: pointer;
+    user-select: none;
+}
+.arrow-left{margin-left: -10px;}
+.arrow-right{margin-right: -10px; right: 0;}
+.z-999{z-index: 999}
+
+/* Custom */
+a{text-decoration: none !important;}
+ul li{list-style-type: none;}
+
+/* Hide Input Arrow Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Hide Input Arrow Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.success{display: none; z-index: 999;}
+.error{display: none; z-index: 999;}
+.confirm{display: none;}
+
+.carousel-control-prev-icon {
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23fff' viewBox='0 0 8 8'%3E%3Cpath d='M5.25 0l-4 4 4 4 1.5-1.5-2.5-2.5 2.5-2.5-1.5-1.5z'/%3E%3C/svg%3E") !important;
+}
+
+.carousel-control-next-icon {
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23fff' viewBox='0 0 8 8'%3E%3Cpath d='M2.75 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z'/%3E%3C/svg%3E") !important;
+}
+
+.carousel-indicators button {
+    width: 10px !important;
+    height: 10px !important;
+    border-radius: 100% !important;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+#category::-webkit-scrollbar {
+    display: none;
+}
+  
+/* Hide scrollbar for IE, Edge and Firefox */
+#category {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+.product:hover .box-product{
+    border: 2px solid #6435b1;
+}
+
+.product-btn{
+    display: none;
+    z-index: 999;
+}
+.product:hover .product-btn{
+    display: block;
+}
+
+.envelope-line {
+    height: 3px;
+    width: 100%;
+    background-position-x: -30px;
+    background-size: 116px 3px;
+    background-image: repeating-linear-gradient(45deg,#6fa6d6,#6fa6d6 33px,transparent 0,transparent 41px,#f18d9b 0,#f18d9b 74px,transparent 0,transparent 82px);
+}
+
+.footer{
+    background-color: #FBFBFB !important;
+    border-top: 3px solid #6435b1;
+}
