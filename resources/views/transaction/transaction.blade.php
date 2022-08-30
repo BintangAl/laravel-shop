@@ -2,8 +2,11 @@
 
 @section('container')
 
-@include('partials.alert-confirm', ['message' => 'Anda yakin ingin membatalkan pesanan?', 'confirm_btn' => 'Batalkan', 'type' => 'submit'])
-@include('partials.nav')
+<form action="{{ route('cancel', [$transaction->invoice]) }}" method="POST">
+  @csrf
+  @include('partials.alert-confirm', ['message' => 'Anda yakin ingin membatalkan pesanan?', 'is_confirm' => "load()" ,'confirm_btn' => 'Batalkan', 'type' => 'submit'])
+  @include('partials.nav')
+</form>
 
 <div class="bg-white p-3 text-main border-bottom mb-2">
     <div class="container d-flex justify-content-between align-items-center">
@@ -16,6 +19,35 @@
     @if ($transaction->status == 'Belum Bayar')
     <div class="alert alert-danger py-2 alert-dismissible fade show pointer fs-small" onclick="window.location='{{ route('payment', [$transaction->invoice]) }}'; load()" role="alert">
         Segera lakukan pembayaran sebelum <strong>{{ date('d F Y H:m', strtotime($transaction->expire)) }} WIB</strong>
+    </div>
+    @endif
+
+    @if ($transaction->status == 'Dikemas' || $transaction->status == 'Dikirim' || $transaction->status == 'Selesai')
+    <div class="bg-white border-bottom p-3" @if($transaction->status == 'Dikirim' || $transaction->status == 'Selesai') onclick="window.location='{{ route('delivery', [$transaction->invoice]) }}'; load()" @endif>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="text-main"><i class="fa-solid fa-truck"></i> Info Pengiriman</div>
+          @if ($transaction->status == 'Dikirim')
+          <div class="text-main fs-small">DETAIL</div>
+          @endif
+        </div>
+
+        <div class="fw-bold text-uppercase" id="delivery_service">{{ $transaction->delivery_service }}
+        </div>
+        @if ($transaction->status == 'Dikemas')
+        <div class="text-warning">
+          Barang Sedang Dikemas 
+          <i class="bi bi-box-seam-fill"></i>
+        </div>
+        @endif
+        @if ($transaction->status == 'Dikirim')
+        <div class="text-gray fs-small">No. Resi {{ $transaction->no_resi }}</div>
+        <div class="text-gray fs-small">
+          Estimasi diterima sebelum {{ $estimation }}
+        </div>
+        @endif
+        @if ($transaction->status == 'Selesai')
+        <div class="text-success fs-small">Paket telah diterima <i class="bi bi-check-circle-fill"></i></div>
+        @endif
     </div>
     @endif
 
@@ -33,7 +65,8 @@
         'product_price' => $product->product_price
     ])
 
-    <div class="bg-white shadow-sm p-3 mb-3">
+    @if ($transaction->status == 'Belum Bayar')
+        <div class="bg-white shadow-sm p-3 mb-3">
         <div class="text-main mb-3"><i class="fa-solid fa-truck"></i> Opsi Pengiriman</div>
 
         <div class="d-flex justify-content-between">
@@ -42,6 +75,7 @@
         </div>
         <div>Estimasi <span id="delivery_etd">{{ $transaction->delivery_estimation }}</span> hari kerja.</div>
     </div>
+    @endif
 
     <div class="bg-white shadow-sm mb-3">
         <div class="p-3 border-bottom">
@@ -84,7 +118,7 @@
 
     @if ($transaction->status == 'Belum Bayar')
     <button class="btn bg-main text-light w-100 mb-3 rounded-0" onclick="window.location='{{ route('payment', [$transaction->invoice]) }}'; load()">Menunggu Pembayaran</button>
-    <button class="btn bg-main text-light w-100 mb-3 rounded-0" onclick="window.location='{{ route('payment', [$transaction->invoice]) }}'; load()">Menunggu Pembayaran</button>
+    <button class="btn bg-gray w-100 mb-3 rounded-0" onclick="$('.confirm').fadeIn('fast');">Batalkan Pesanan</button>
     @endif
 
     @if ($transaction->status == 'Dikemas')

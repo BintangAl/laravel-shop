@@ -23,10 +23,11 @@ class CreateTransactionsTable extends Migration
             $table->bigInteger('quantity');
             $table->bigInteger('amount');
             $table->string('payment');
+            $table->string('no_resi')->nullable();
             $table->string('delivery_service');
             $table->string('delivery_ongkir');
             $table->string('delivery_estimation');
-            $table->enum('status', ['Belum Bayar', 'Dikemas', 'Dikirim', 'Selesei', 'Dibatalkan', 'Gagal']);
+            $table->enum('status', ['Belum Bayar', 'Dikemas', 'Dikirim', 'Selesai', 'Dibatalkan', 'Gagal']);
             $table->string('expire');
             $table->timestamps();
         });

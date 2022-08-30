@@ -41,7 +41,14 @@
             </div>
             
             <div class="bg-white p-3 text-main mb-2">DETAIL PRODUK</div>
-            <div class="bg-white p-3">{!! $product->product_detail !!}</div>
+            <div class="bg-white p-3">
+              @foreach($detail as $key => $val)
+              {{ $val }}
+              @if($key != 0)
+              <br>
+              @endif
+              @endforeach
+            </div>
         </div>
     </div>
     

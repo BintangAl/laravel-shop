@@ -58,5 +58,7 @@ Route::post('/transaction', [TransactionController::class, 'transaction'])->name
 
 Route::get('/transaction/{invoice}', [TransactionController::class, 'detailTransaction'])->name('detail-transaction')->middleware('auth');
 Route::get('/payment/{invoice}', [TransactionController::class, 'payment'])->name('payment')->middleware('auth');
+Route::get('/delivery/{invoice}', [TransactionController::class, 'delivery'])->name('delivery')->middleware('auth');
+Route::post('/cancel/{invoice}', [TransactionController::class, 'cancel'])->name('cancel')->middleware('auth');
 
 Route::post('callback', [TripayCallbackController::class, 'handle']);

@@ -52,8 +52,8 @@
             <div class="col-lg-2 col-6 mb-4 mb-lg-0">
                 <div class="fw-bold text-dark-gray fs-xsmall mb-3">LAINNYA DI MUNN.MY.ID</div>
                 <a href="#" class="d-block mb-2 text-dark-gray text-main-hover fs-xsmall">Donate</a>
-                <a href="https://chat.munn.my.id" class="d-block mb-2 text-dark-gray text-main-hover fs-xsmall">Munn Chat App</a>
-                <a href="https://anime.munn.my.id" class="d-block text-dark-gray text-main-hover fs-xsmall">Munn Anime List</a>
+                <a href="https://chat.munn.my.id" target="_blank" class="d-block mb-2 text-dark-gray text-main-hover fs-xsmall">Munn Chat App</a>
+                <a href="https://anime.munn.my.id" target="_blank" class="d-block text-dark-gray text-main-hover fs-xsmall">Munn Anime List</a>
             </div>
         </div>
     </div>

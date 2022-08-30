@@ -93,7 +93,7 @@ class UserController extends Controller
         $transaction = Transaction::where('user_id', auth()->user()->id)->get();
 
         if ($status != 'all') {
-            $purchase_status = (($status == 'unpaid') ? 'Belum Bayar' : (($status == 'packed') ? 'Dikemas' : (($status == 'sent') ? 'Dikirim' : (($status == 'done') ? 'Selesei' : (($status == 'cancel') ? 'Dibatalkan' : 'Gagal')))));
+            $purchase_status = (($status == 'unpaid') ? 'Belum Bayar' : (($status == 'packed') ? 'Dikemas' : (($status == 'sent') ? 'Dikirim' : (($status == 'done') ? 'Selesai' : (($status == 'cancel') ? 'Dibatalkan' : 'Gagal')))));
             $transaction = Transaction::where([['user_id', '=', auth()->user()->id], ['status', '=', $purchase_status]])->latest()->get();
         }
 

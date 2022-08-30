@@ -3,7 +3,7 @@
     <div class="d-inline-block text-center p-3 pointer w-110 {{ ($status == 'unpaid' ) ? 'border-main-bottom text-main' : '' }}" id="unpaid" onclick="window.location='{{ route('purchase', ['unpaid']) }}'">Belum Bayar</div>
     <div class="d-inline-block text-center p-3 pointer w-110 {{ ($status == 'packed' ) ? 'border-main-bottom text-main' : '' }}" id="packed" onclick="window.location='{{ route('purchase', ['packed']) }}'">Dikemas</div>
     <div class="d-inline-block text-center p-3 pointer w-110 {{ ($status == 'sent' ) ? 'border-main-bottom text-main' : '' }}" id="sent" onclick="window.location='{{ route('purchase', ['sent']) }}'">Dikirim</div>
-    <div class="d-inline-block text-center p-3 pointer w-110 {{ ($status == 'done' ) ? 'border-main-bottom text-main' : '' }}" id="done" onclick="window.location='{{ route('purchase', ['done']) }}'">Selesei</div>
+    <div class="d-inline-block text-center p-3 pointer w-110 {{ ($status == 'done' ) ? 'border-main-bottom text-main' : '' }}" id="done" onclick="window.location='{{ route('purchase', ['done']) }}'">Selesai</div>
     <div class="d-inline-block text-center p-3 pointer w-110 {{ ($status == 'cancel' ) ? 'border-main-bottom text-main' : '' }}" id="cancel" onclick="window.location='{{ route('purchase', ['cancel']) }}'">Dibatalkan</div>
     <div class="d-inline-block text-center p-3 pointer w-110 {{ ($status == 'failed' ) ? 'border-main-bottom text-main' : '' }}" id="failed" onclick="window.location='{{ route('purchase', ['failed']) }}'">Gagal</div>
 </div>

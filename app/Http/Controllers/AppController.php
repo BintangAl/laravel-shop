@@ -35,7 +35,7 @@ class AppController extends Controller
                 <div class="col-lg-2 col-md-3 col-sm-4 col-6 mb-4">
                     <div class="product position-relative" onclick="window.location=' . $link . '">
                         <div class="box-product bg-white shadow-sm h-225 position-relative pointer">
-                            <div class="product-image bg-primary h-150 w-100 bg-image" style="background-image: url(' . url($value->product_image) . ')"></div>
+                            <div class="product-image bg-white h-150 w-100 bg-image" style="background-image: url(' . url($value->product_image) . ')"></div>
                             <div class="product-name fs-xsmall p-2 sans" id="product-name' . $value->id . '">' . $name . '</div>
                             <div class="product-price position-absolute bottom-0 start-0 ps-2 text-main mb-1">' . $value->product_price . '</div>
                         </div>
@@ -61,10 +61,14 @@ class AppController extends Controller
 
     public function product($id, $product)
     {
+        $product = Product::where('id', $id)->first();
+        //dd(explode("\n", $product->product_detail));
+        
         return view('product')
             ->with([
-                'product' => Product::where('id', $id)->first(),
-                'cart' => (Auth::check()) ? Cart::where('user_id', auth()->user()->id)->get() : []
+                'product' => $product,
+                'cart' => (Auth::check()) ? Cart::where('user_id', auth()->user()->id)->get() : [],
+                'detail' => explode("\n", $product->product_detail)
             ]);
     }
 

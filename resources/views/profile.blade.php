@@ -60,7 +60,10 @@
     </div>
 </div>
 
-@include('partials.footer')
+<div class="d-none d-lg-block">
+  @include('partials.footer')
+</div>
+
 @endsection
 
 @section('js')
