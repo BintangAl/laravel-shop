@@ -21,3 +21,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::post('/select-address/{key}/{id}', [ApiController::class, 'SelectAddress']);
 Route::post('/delivery-option/{key}/{destination}', [ApiController::class, 'DeliveryOption']);
+
+Route::post('/users', [ApiController::class, 'Users']);
+Route::post('/products', [ApiController::class, 'Products']);
+Route::post('/transactions', [ApiController::class, 'Transactions']);

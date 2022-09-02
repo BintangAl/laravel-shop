@@ -46,8 +46,8 @@ class UserController extends Controller
     public function addAddress(Request $request)
     {
         $address = Address::where('user_id', auth()->user()->id)->get();
-
         $request->validate(['*' => 'required']);
+
         Address::create([
             'user_id' => auth()->user()->id,
             'status' => (count($address)) ? 'false' : 'true',
