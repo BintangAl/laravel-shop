@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\NotificationCreated;
+use App\Http\Controllers\API\ApiController;
 use App\Http\Controllers\Tripay\TripayController;
 use App\Models\Address;
 use App\Models\Cart;
+use App\Models\Notification;
 use App\Models\Product;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class TransactionController extends Controller
 {
@@ -16,7 +20,7 @@ class TransactionController extends Controller
         $tripay = new TripayController();
 
         $customer = Address::find(str_replace('address', '', request('address_id')));
-        $product = Product::find(request('product_id'));
+        $product = Product::with('image')->find(request('product_id'));
 
         $delivery = explode('#', request('delivery'));
 
@@ -34,8 +38,18 @@ class TransactionController extends Controller
 
         if ($transaction->user_id == auth()->user()->id) {
             if ($transaction->status == 'Belum Bayar') {
+                $api = new ApiController();
+                if (Auth::user()) {
+                    $notif = json_decode($api->Notification('list', [
+                        'user_id' => auth()->user()->id,
+                        'to' => 'munnshop'
+                    ]));
+                }
+
                 return view('transaction.payment')
                     ->with([
+                        'title' => 'Transaction Payment',
+                        'notif' => isset($notif) ? $notif->data : [],
                         'cart' => Cart::where('user_id', auth()->user()->id)->get(),
                         'data' => (isset($detail)) ? $detail->data : [],
                         'payment' => (isset($payment)) ? $payment->data[0] : []
@@ -59,8 +73,18 @@ class TransactionController extends Controller
         date_add($estimation, date_interval_create_from_date_string($est . ' hours'));
 
         if ($transaction->user_id == auth()->user()->id) {
+            $api = new ApiController();
+            if (Auth::user()) {
+                $notif = json_decode($api->Notification('list', [
+                    'user_id' => auth()->user()->id,
+                    'to' => 'munnshop'
+                ]));
+            }
+
             return view('transaction.transaction')
                 ->with([
+                    'title' => 'Transaction',
+                    'notif' => isset($notif) ? $notif->data : [],
                     'cart' => Cart::where('user_id', auth()->user()->id)->get(),
                     'transaction' => $transaction,
                     'customer' => Address::find($transaction->customer_id),
@@ -100,8 +124,18 @@ class TransactionController extends Controller
                 curl_close($curl);
                 $response = json_decode($response);
 
+                $api = new ApiController();
+                if (Auth::user()) {
+                    $notif = json_decode($api->Notification('list', [
+                        'user_id' => auth()->user()->id,
+                        'to' => 'munnshop'
+                    ]));
+                }
+
                 return view('transaction.delivery')
                     ->with([
+                        'title' => 'Transaction Delivery',
+                        'notif' => isset($notif) ? $notif->data : [],
                         'cart' => Cart::where('user_id', auth()->user()->id)->get(),
                         'transaction' => $transaction,
                         'tracking' => ($response->status == 200) ? $response->data->history : [],
@@ -135,11 +169,31 @@ class TransactionController extends Controller
     public function done($invoice)
     {
         $transaction = Transaction::where('invoice', $invoice)->first();
+        $product = Product::where('id', $transaction->product_id)->first();
         //dd($transaction->first());
 
         if ($transaction->user_id == auth()->user()->id) {
             if ($transaction->status == 'Dikirim') {
                 $transaction->update(['status' => 'Selesai']);
+                $product->update([
+                    'product_stok' => $product->product_stok - $transaction->quantity,
+                    'product_sold' => $product->product_sold + $transaction->quantity
+                ]);
+
+                $notif = [
+                    'message' => 'MunnShop Order Accepted!',
+                    'user_id' => $transaction->user_id,
+                    'invoice' => $transaction->invoice,
+                    'product' => $product->product_name,
+                    'image' => url($product->image[0]->image),
+                    'from' => 'munnshop',
+                    'to' => 'admin'
+                ];
+
+                $api = new ApiController();
+                $api->Notification('create', $notif);
+                NotificationCreated::dispatch(array_merge($notif, ['id' => $api->NotificationNextId()]));
+
                 return redirect(route('purchase', ['done']));
             } else {
                 return redirect(route('detail-transaction', [$transaction->invoice]));

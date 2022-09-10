@@ -13,6 +13,16 @@ use Illuminate\Support\Facades\Broadcast;
 |
 */
 
-Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
-    return (int) $user->id === (int) $id;
+Broadcast::channel('notificationFromAdmin.{user_id}', function ($user, $id) {
+    // return (int) $user->id === (int) $id;
+    if ($user->id == $id) {
+        return true;
+    }
+});
+
+Broadcast::channel('notificationFromMunnShop.{user_id}', function ($user, $id) {
+    // return (int) $user->id === (int) $id;
+    if ($user->id == $id) {
+        return true;
+    }
 });

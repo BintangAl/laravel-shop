@@ -51,4 +51,8 @@ return [
         'redirect' => env('GOOGLE_CLIENT_REDIRECT')
     ],
 
+    'dashboard' => [
+        'key' => env('DAHSBOARD_KEY')
+    ],
+
 ];

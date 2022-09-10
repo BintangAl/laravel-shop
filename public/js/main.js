@@ -42,6 +42,19 @@ function addCart(id){
         data: {'product_id' : id, 'quantity' : $('#quantity').val()},
         success: function (response) {
             alertSuccess();
+
+            if (response == 'added') {
+                if ($("#cartAlertBadge").length) {
+                    $('#cartAlertBadge').text(parseInt($('#cartAlertBadge').text()) + 1);
+                } else {
+                    $('#cartAlert').prepend(`
+                      <span
+                      class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-light text-main border-main"
+                      style="font-size: 8px"
+                      id="cartAlertBadge">1</span>
+                    `);
+                }   
+            }
         }, error: function (error) {
             if(error.status == 401){
                 window.location = window.location.origin + '/login';
@@ -208,17 +221,21 @@ $(document).ready(function () {
                 url: window.location.origin + "/search",
                 data: {'search' : $(this).val()},
                 success: function (response) {
-                    // console.log(response);
-                    $('#product-search').html('');
-                    $('#product-search').append(response);
-                    var idArray = [];
-                    $('.product-name').each(function () {
-                        idArray.push(this.id);
-                        var text = $('#'+this.id).text();
-                        if(text.length > 30){
-                            $('#'+this.id).text(text.substring(0, 28)+'...');
-                        }
-                    });
+                    if (response != '') {
+                        $('#product-search').html('');
+                        $('#product-search').append(response);
+                        var idArray = [];
+                        $('.product-name').each(function () {
+                            idArray.push(this.id);
+                            var text = $('#'+this.id).text();
+                            if(text.length > 30){
+                                $('#'+this.id).text(text.substring(0, 28)+'...');
+                            }
+                        });
+                    } else {
+                        $('#product-search').html('');
+                        $('#product-search').append('<div class="text-center mt-3 text-gray fw-bold"><i class="fa-solid fa-magnifying-glass"></i> Produk tidak ditemukan</div>');
+                    }
                 }
             });
         } else {
@@ -229,15 +246,6 @@ $(document).ready(function () {
 
     $('select').selectize({
         sortField: 'text'
-    });
-
-    var idArray = [];
-    $('.product-name').each(function () {
-        idArray.push(this.id);
-        var text = $('#'+this.id).text();
-        if(text.length > 30){
-            $('#'+this.id).text(text.substring(0, 28)+'...');
-        }
     });
 
     $('#quantity').change(function () { 

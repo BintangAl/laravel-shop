@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers\Tripay;
 
+use App\Events\NotificationCreated;
+use App\Http\Controllers\API\ApiController;
 use App\Http\Controllers\Controller;
 use App\Models\Cart;
+use App\Models\Notification;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 
@@ -118,6 +121,20 @@ class TripayController extends Controller
                 $trasaction->status = $status;
                 $trasaction->expire = date('Y-m-d H:i:s', $response->expired_time);
                 $trasaction->save();
+
+                $notif = [
+                    'message' => 'MunnShop New Order!',
+                    'user_id' => auth()->user()->id,
+                    'invoice' => $merchantRef,
+                    'product' => $product->product_name,
+                    'image' => url($product->image[0]->image),
+                    'from' => 'munnshop',
+                    'to' => 'admin'
+                ];
+
+                $api = new ApiController();
+                $api->Notification('create', $notif);
+                NotificationCreated::dispatch(array_merge($notif, ['id' => $api->NotificationNextId()]));
 
                 if (isset(request()->cart_id)) {
                     Cart::find(request('cart_id'))->delete();

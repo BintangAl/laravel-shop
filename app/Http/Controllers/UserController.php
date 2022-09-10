@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\API\ApiController;
 use App\Http\Controllers\Tripay\TripayController;
 use App\Models\Address;
 use App\Models\Cart;
@@ -10,14 +11,24 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
     public function profile()
     {
+        $api = new ApiController();
+        if (Auth::user()) {
+            $notif = json_decode($api->Notification('list', [
+                'user_id' => auth()->user()->id,
+                'to' => 'munnshop'
+            ]));
+        }
+
         return view('profile')
             ->with([
                 'title' => 'profile',
+                'notif' => isset($notif) ? $notif->data : [],
                 'cart' => Cart::where('user_id', auth()->user()->id)->get()
             ]);
     }
@@ -33,9 +44,18 @@ class UserController extends Controller
 
     public function address()
     {
+        $api = new ApiController();
+        if (Auth::user()) {
+            $notif = json_decode($api->Notification('list', [
+                'user_id' => auth()->user()->id,
+                'to' => 'munnshop'
+            ]));
+        }
+
         return view('profile')
             ->with([
                 'title' => 'address',
+                'notif' => isset($notif) ? $notif->data : [],
                 'cart' => Cart::where('user_id', auth()->user()->id)->get(),
                 'address' => Address::where('user_id', auth()->user()->id)->latest()->get(),
                 'province' => json_decode(file_get_contents('asset/json/province.json'))->rajaongkir->results,
@@ -90,16 +110,25 @@ class UserController extends Controller
 
     public function purchase($status)
     {
-        $transaction = Transaction::where('user_id', auth()->user()->id)->get();
+        $transaction = Transaction::where('user_id', auth()->user()->id)->latest()->get();
 
         if ($status != 'all') {
             $purchase_status = (($status == 'unpaid') ? 'Belum Bayar' : (($status == 'packed') ? 'Dikemas' : (($status == 'sent') ? 'Dikirim' : (($status == 'done') ? 'Selesai' : (($status == 'cancel') ? 'Dibatalkan' : 'Gagal')))));
             $transaction = Transaction::where([['user_id', '=', auth()->user()->id], ['status', '=', $purchase_status]])->latest()->get();
         }
 
+        $api = new ApiController();
+        if (Auth::user()) {
+            $notif = json_decode($api->Notification('list', [
+                'user_id' => auth()->user()->id,
+                'to' => 'munnshop'
+            ]));
+        }
+
         return view('profile')
             ->with([
                 'title' => 'purchase',
+                'notif' => isset($notif) ? $notif->data : [],
                 'status' => $status,
                 'transaction' => $transaction,
                 'cart' => Cart::where('user_id', auth()->user()->id)->get()

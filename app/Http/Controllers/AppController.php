@@ -2,11 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\NotificationCreated;
+use App\Http\Controllers\API\ApiController;
+use Carbon\Carbon;
 use App\Http\Controllers\Tripay\TripayController;
 use App\Models\Address;
 use App\Models\Cart;
 use App\Models\Category;
+use App\Models\Image;
 use App\Models\Product;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,12 +19,31 @@ class AppController extends Controller
 {
     public function app()
     {
+        $api = new ApiController();
+        if (Auth::user()) {
+            $notif = json_decode($api->Notification('list', [
+                'user_id' => auth()->user()->id,
+                'to' => 'munnshop'
+            ]));
+        }
+
         return view('app')
             ->with([
+                'title' => 'MunnShop',
+                'notif' => isset($notif) ? $notif->data : [],
+                'carousel' => Image::where('category', 'carousel')->latest()->limit(3)->get(),
                 'category' => Category::all(),
-                'recomendation' => Product::all(),
+                'recomendation' => Product::with('image')->get(),
                 'cart' => (Auth::check()) ? Cart::where('user_id', auth()->user()->id)->get() : []
             ]);
+    }
+
+    public function notification(Request $request)
+    {
+        $api = new ApiController();
+        $notif = $api->Notification('is_true', ['id' => $request->id]);
+
+        return response()->json($notif);
     }
 
     public function search(Request $request)
@@ -30,14 +54,13 @@ class AppController extends Controller
 
             foreach ($product as $key => $value) {
                 $link = "'" . route('product', [$value->id, strtolower(str_replace([' ', '/'], '_', $value->product_name))]) . "'";
-                $name = strlen($value->product_name) > 30 ? substr($value->product_name, 0, 28) . "..." : $value->product_name;
                 $output .= '
                 <div class="col-lg-2 col-md-3 col-sm-4 col-6 mb-4">
                     <div class="product position-relative" onclick="window.location=' . $link . '">
                         <div class="box-product bg-white shadow-sm h-225 position-relative pointer">
-                            <div class="product-image bg-white h-150 w-100 bg-image" style="background-image: url(' . url($value->product_image) . ')"></div>
-                            <div class="product-name fs-xsmall p-2 sans" id="product-name' . $value->id . '">' . $name . '</div>
-                            <div class="product-price position-absolute bottom-0 start-0 ps-2 text-main mb-1">' . $value->product_price . '</div>
+                            <div class="product-image bg-white h-150 w-100 bg-image" style="background-image: url(' . url($value->image[0]->image) . ')"></div>
+                            <div class="fs-xsmall p-2 sans">' . substr($value->product_name, 0, 27) . (strlen($value->product_name) > 27 ? '...' : '') . '</div>
+                            <div class="product-price position-absolute bottom-0 start-0 ps-2 text-main mb-1">Rp ' . number_format($value->product_price) . '</div>
                         </div>
                         <div class="product-btn bg-main text-light fs-small text-center p-2 position-absolute w-100 pointer">BELI SEKARANG</div>
                     </div>
@@ -51,8 +74,18 @@ class AppController extends Controller
 
     public function category($id, $category)
     {
+        $api = new ApiController();
+        if (Auth::user()) {
+            $notif = json_decode($api->Notification('list', [
+                'user_id' => auth()->user()->id,
+                'to' => 'munnshop'
+            ]));
+        }
+
         return view('category')
             ->with([
+                'title' => 'category',
+                'notif' => isset($notif) ? $notif->data : [],
                 'category' => Category::where('id', $id)->first()->category,
                 'product' => Category::where('id', $id)->first()->product,
                 'cart' => (Auth::check()) ? Cart::where('user_id', auth()->user()->id)->get() : []
@@ -61,21 +94,41 @@ class AppController extends Controller
 
     public function product($id, $product)
     {
+        $api = new ApiController();
+        if (Auth::user()) {
+            $notif = json_decode($api->Notification('list', [
+                'user_id' => auth()->user()->id,
+                'to' => 'munnshop'
+            ]));
+        }
+
         $product = Product::where('id', $id)->first();
-        //dd(explode("\n", $product->product_detail));
-        
+
         return view('product')
             ->with([
+                'title' => 'product',
+                'notif' => isset($notif) ? $notif->data : [],
                 'product' => $product,
                 'cart' => (Auth::check()) ? Cart::where('user_id', auth()->user()->id)->get() : [],
-                'detail' => explode("\n", $product->product_detail)
+                'detail' => explode("\n", $product->product_detail),
+                'recomendation' => Category::with('product')->find($product->category_id)->product
             ]);
     }
 
     public function cart()
     {
+        $api = new ApiController();
+        if (Auth::user()) {
+            $notif = json_decode($api->Notification('list', [
+                'user_id' => auth()->user()->id,
+                'to' => 'munnshop'
+            ]));
+        }
+
         return view('cart')
             ->with([
+                'title' => 'cart',
+                'notif' => isset($notif) ? $notif->data : [],
                 'cart' => Cart::where('user_id', auth()->user()->id)->get()
             ]);
     }
@@ -89,18 +142,20 @@ class AppController extends Controller
         if (count($cart)) {
             $cart[0]->product_quantity = $cart[0]->product_quantity + $request->quantity;
             $cart[0]->save();
+
+            return response('updated');
         } else {
             Cart::create([
                 'user_id' => $user_id,
                 'product_id' => $product->id,
                 'product_name' => $product->product_name,
-                'product_image' => $product->product_image,
+                'product_image' => $product->image[0]->image,
                 'product_price' => $product->product_price,
                 'product_quantity' => $request->quantity,
             ]);
-        }
 
-        return response('added');
+            return response('added');
+        }
     }
 
     public function updateQuantity(Request $request)
@@ -175,8 +230,18 @@ class AppController extends Controller
             $channel = [];
         }
 
+        $api = new ApiController();
+        if (Auth::user()) {
+            $notif = json_decode($api->Notification('list', [
+                'user_id' => auth()->user()->id,
+                'to' => 'munnshop'
+            ]));
+        }
+
         return view('checkout')
             ->with([
+                'title' => 'checkout',
+                'notif' => isset($notif) ? $notif->data : [],
                 'cart_id' => $cart_id,
                 'product' => Product::where('id', $id)->first(),
                 'quantity' => $request->quantity,

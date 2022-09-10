@@ -18,9 +18,8 @@ class CreateProductsTable extends Migration
             $table->string('product_name');
             $table->string('product_price');
             $table->text('product_detail');
-            $table->string('product_image');
             $table->string('product_stok');
-            $table->string('product_sold');
+            $table->string('product_sold')->default(0);
             $table->foreignId('category_id');
             $table->timestamps();
         });

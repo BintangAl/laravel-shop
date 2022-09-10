@@ -1,4 +1,8 @@
-<div class="input-group input-group-sm mb-2 mb-lg-0">
-  <input type="text" class="search form-control rounded-start border-light border-4 shadow-none" placeholder="Search" aria-describedby="search">
-  <button type="button" class="input-group-text rounded-end border-light border-4 bg-main text-light px-4"><i class="fa-solid fa-magnifying-glass"></i></button>
+<div id="seacrh-field" style="display: none">
+    <div class="container mt-4 overpass">
+        <div class="bg-white p-3 text-main border-bottom mb-2 text-uppercase text-truncate">Search : <span
+                id="value">Baju</span></div>
+        <div class="row" id="product-search">
+        </div>
+    </div>
 </div>

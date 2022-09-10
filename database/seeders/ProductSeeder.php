@@ -34,7 +34,6 @@ class ProductSeeder extends Seeder
                 Barang akan selalu dicek sebelum dikirim
                 FAST SHIPPING - > Pengiriman di hari yang sama
             ',
-            'product_image' => '/asset/img/product/jam_tangan/1.jpeg',
             'product_stok' => '50',
             'product_sold' => '0',
             'category_id' => '8',
@@ -62,7 +61,6 @@ class ProductSeeder extends Seeder
                 • DEKA fashion selalu menjaga kualitas kerapihan jahit, sehingga produknya dijamin bagus
                 • Untuk pengiriman setiap hari dan cepat (minggu tetap ada pengiriman) 😊🙏
             ',
-            'product_image' => '/asset/img/product/pakaian_wanita/1.jpeg',
             'product_stok' => '50',
             'product_sold' => '0',
             'category_id' => '4',
@@ -97,7 +95,6 @@ class ProductSeeder extends Seeder
                 
                 Yuk, order sekarang juga dan koleksi semua warnanya !
             ',
-            'product_image' => '/asset/img/product/fashion_muslim/1.jpeg',
             'product_stok' => '50',
             'product_sold' => '0',
             'category_id' => '7',
@@ -119,7 +116,6 @@ class ProductSeeder extends Seeder
                 39= 24cm
                 40= 24,5cm
             ',
-            'product_image' => '/asset/img/product/sepatu_wanita/1.jpeg',
             'product_stok' => '50',
             'product_sold' => '0',
             'category_id' => '6',
@@ -140,7 +136,6 @@ class ProductSeeder extends Seeder
                 NB : Warna Bagian Dalam Tas Tergantung Pembuatan Saat Produksi (Bisa Merah/Hitam & Sesuai Warna Variasinya)
                         Untuk Kualitas Produknya Sama.
             ',
-            'product_image' => '/asset/img/product/tas_wanita/1.jpeg',
             'product_stok' => '50',
             'product_sold' => '0',
             'category_id' => '5',
@@ -191,7 +186,6 @@ class ProductSeeder extends Seeder
                 
                 * Sepatu yg dikirim dijamin BERKUALITAS TERBAIK dan TANPA CACAT , karena sebelum dikirim SEPATU terlebih dahulu DI CEK INSPECTION QUALITY CONTROL agar sepatu dikirim TIDAK MENGECEWAKAN pembeli.
             ',
-            'product_image' => '/asset/img/product/sepatu_pria/1.jpeg',
             'product_stok' => '50',
             'product_sold' => '0',
             'category_id' => '3',
@@ -211,7 +205,6 @@ class ProductSeeder extends Seeder
                 Bahan Produk: Plastik 
                 Isi Paket: 1pc kacamata hitam
             ',
-            'product_image' => '/asset/img/product/aksesoris_fashion/1.jpeg',
             'product_stok' => '50',
             'product_sold' => '0',
             'category_id' => '9',
@@ -233,7 +226,6 @@ class ProductSeeder extends Seeder
                 SANGAT COCOK DIPAKAI UNTUK SEKOLAH/KULIAH/KERJA DAN BEERGIAN
                 BAGIAN PUNGGUNG DIBUAT SENYAMAN MUNGKIN AGAR NYAMAN SAAT DIGUNAKAN 
             ',
-            'product_image' => '/asset/img/product/tas_pria/1.jpeg',
             'product_stok' => '50',
             'product_sold' => '0',
             'category_id' => '2',
@@ -280,7 +272,6 @@ class ProductSeeder extends Seeder
                 XL: Chest Width: 57 cm - Shirt Length: 73 cm
                 XXL: Chest Width: 59 cm - Shirt Length: 75 cm
             ",
-            'product_image' => '/asset/img/product/pakaian_pria/1.jpeg',
             'product_stok' => '50',
             'product_sold' => '0',
             'category_id' => '1',

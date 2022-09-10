@@ -26,6 +26,7 @@ require __DIR__ . '/auth.php';
 
 Route::get('/', [AppController::class, 'app'])->name('app');
 Route::get('/search', [AppController::class, 'search'])->name('search');
+Route::post('/notification', [AppController::class, 'notification'])->name('notification');
 
 Route::get('/category/{id}/{category}', [AppController::class, 'category'])->name('category');
 Route::get('/product/{id}/{product}', [AppController::class, 'product'])->name('product');
