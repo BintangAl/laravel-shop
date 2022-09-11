@@ -49,7 +49,7 @@ class TransactionController extends Controller
                 return view('transaction.payment')
                     ->with([
                         'title' => 'Transaction Payment',
-                        'notif' => isset($notif) ? $notif->data : [],
+                        'notif' => isset($notif) ? $notif->data : null,
                         'cart' => Cart::where('user_id', auth()->user()->id)->get(),
                         'data' => (isset($detail)) ? $detail->data : [],
                         'payment' => (isset($payment)) ? $payment->data[0] : []
@@ -84,7 +84,7 @@ class TransactionController extends Controller
             return view('transaction.transaction')
                 ->with([
                     'title' => 'Transaction',
-                    'notif' => isset($notif) ? $notif->data : [],
+                    'notif' => isset($notif) ? $notif->data : null,
                     'cart' => Cart::where('user_id', auth()->user()->id)->get(),
                     'transaction' => $transaction,
                     'customer' => Address::find($transaction->customer_id),
@@ -135,7 +135,7 @@ class TransactionController extends Controller
                 return view('transaction.delivery')
                     ->with([
                         'title' => 'Transaction Delivery',
-                        'notif' => isset($notif) ? $notif->data : [],
+                        'notif' => isset($notif) ? $notif->data : null,
                         'cart' => Cart::where('user_id', auth()->user()->id)->get(),
                         'transaction' => $transaction,
                         'tracking' => ($response->status == 200) ? $response->data->history : [],

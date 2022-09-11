@@ -252,6 +252,7 @@ class ApiController extends Controller
                     'product_name' => 'required',
                     'product_price' => 'required',
                     'product_detail' => 'required',
+                    'product_size' => 'max:255',
                     'product_stok' => 'required',
                     'category_id' => 'required'
                 ]);
@@ -269,6 +270,7 @@ class ApiController extends Controller
                     'product_name' => 'required',
                     'product_price' => 'required',
                     'product_detail' => 'required',
+                    'product_size' => 'max:255',
                     'product_stok' => 'required',
                     'category_id' => 'required'
                 ]);

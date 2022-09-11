@@ -20,6 +20,7 @@ class CreateCartsTable extends Migration
             $table->string('product_name');
             $table->string('product_image');
             $table->string('product_price');
+            $table->string('product_size')->nullable();
             $table->string('product_quantity');
             $table->enum('status', ['active', 'is_checkout'])->default('active');
             $table->timestamps();

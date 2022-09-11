@@ -2,6 +2,7 @@
 
 @section('container')
     @include('partials.alert-confirm', [
+        'confirm_id' => 'confirm_delete_cart',
         'message' => 'Hapus product dari keranjang',
         'confirm_btn' => 'Delete',
     ])
@@ -13,17 +14,17 @@
         </div>
 
         <div class="container mt-3 overpass">
-            <div class="row">
+            <div class="row" id="cartList">
                 @if (count($cart))
                     @foreach ($cart as $item)
-                        <div class="col-lg-4 col-md-6 col-12 mb-3" id="cart{{ $item->product_id }}">
+                        <div class="col-md-6 col-12 mb-3" id="cart{{ $item->id }}">
                             <form
                                 action="{{ route('checkout', [$item->product_id, strtolower(str_replace([' ', '/'], '_', $item->product_name)), $item->id]) }}"
                                 method="get">
                                 <div class="bg-white shadow-sm p-2 d-flex w-100 position-relative pointer">
                                     <a
                                         href="{{ route('product', [$item->product_id, strtolower(str_replace([' ', '/'], '_', $item->product_name))]) }}">
-                                        <div class="w-101 h-101 bg-image border"
+                                        <div class="w-101 h-101 bg-gray bg-image border"
                                             style="background-image: url({{ $item->product_image }})"></div>
                                     </a>
                                     <div class="ms-2 text-truncate position-relative">
@@ -31,15 +32,19 @@
                                             class="fw-bold text-dark">
                                             {{ $item->product_name }}
                                         </a>
-                                        <div class="text-main mb-3">Rp {{ number_format($item->product_price) }}</div>
+                                        <div class="text-main">Rp {{ number_format($item->product_price) }}</div>
+
+                                        @if (isset($item->product_size))
+                                            <div class="text-gray fs-small">Ukuran : {{ $item->product_size }}</div>
+                                        @endif
 
                                         <div class="input-group input-group-sm w-101 position-absolute bottom-0 start-0">
-                                            <span class="input-group-text pointer" id="min{{ $item->product_id }}"
+                                            <span class="input-group-text pointer" id="min{{ $item->id }}"
                                                 onclick="minQuantityUpdate(this.id)">-</span>
                                             <input type="number" class="form-control text-center shadow-none"
-                                                name="quantity" id="quantity{{ $item->product_id }}"
+                                                name="quantity" id="quantity{{ $item->id }}"
                                                 value="{{ $item->product_quantity }}" readonly>
-                                            <span class="input-group-text pointer" id="add{{ $item->product_id }}"
+                                            <span class="input-group-text pointer" id="add{{ $item->id }}"
                                                 onclick="addQuantityUpdate(this.id)">+</span>
                                         </div>
                                     </div>

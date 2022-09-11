@@ -18,6 +18,7 @@ class CreateProductsTable extends Migration
             $table->string('product_name');
             $table->string('product_price');
             $table->text('product_detail');
+            $table->json('product_size')->nullable();
             $table->string('product_stok');
             $table->string('product_sold')->default(0);
             $table->foreignId('category_id');

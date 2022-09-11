@@ -30,7 +30,7 @@ class AppController extends Controller
         return view('app')
             ->with([
                 'title' => 'MunnShop',
-                'notif' => isset($notif) ? $notif->data : [],
+                'notif' => isset($notif) ? $notif->data : null,
                 'carousel' => Image::where('category', 'carousel')->latest()->limit(3)->get(),
                 'category' => Category::all(),
                 'recomendation' => Product::with('image')->get(),
@@ -85,7 +85,7 @@ class AppController extends Controller
         return view('category')
             ->with([
                 'title' => 'category',
-                'notif' => isset($notif) ? $notif->data : [],
+                'notif' => isset($notif) ? $notif->data : null,
                 'category' => Category::where('id', $id)->first()->category,
                 'product' => Category::where('id', $id)->first()->product,
                 'cart' => (Auth::check()) ? Cart::where('user_id', auth()->user()->id)->get() : []
@@ -104,15 +104,19 @@ class AppController extends Controller
 
         $product = Product::where('id', $id)->first();
 
-        return view('product')
-            ->with([
-                'title' => 'product',
-                'notif' => isset($notif) ? $notif->data : [],
-                'product' => $product,
-                'cart' => (Auth::check()) ? Cart::where('user_id', auth()->user()->id)->get() : [],
-                'detail' => explode("\n", $product->product_detail),
-                'recomendation' => Category::with('product')->find($product->category_id)->product
-            ]);
+        if ($product) {
+            return view('product')
+                ->with([
+                    'title' => 'product',
+                    'notif' => isset($notif) ? $notif->data : null,
+                    'product' => $product,
+                    'cart' => (Auth::check()) ? Cart::where('user_id', auth()->user()->id)->get() : [],
+                    'detail' => explode("\n", $product->product_detail),
+                    'recomendation' => Category::with('product')->find($product->category_id)->product
+                ]);
+        } else {
+            abort(404);
+        }
     }
 
     public function cart()
@@ -128,7 +132,7 @@ class AppController extends Controller
         return view('cart')
             ->with([
                 'title' => 'cart',
-                'notif' => isset($notif) ? $notif->data : [],
+                'notif' => isset($notif) ? $notif->data : null,
                 'cart' => Cart::where('user_id', auth()->user()->id)->get()
             ]);
     }
@@ -137,7 +141,7 @@ class AppController extends Controller
     {
         $user_id = auth()->user()->id;
         $product = Product::where('id', $request->product_id)->first();
-        $cart = Cart::where([['user_id', '=', $user_id], ['product_id', '=', $product->id]])->get();
+        $cart = Cart::where([['user_id', '=', $user_id], ['product_id', '=', $product->id], ['product_size', '=', $request->size]])->get();
 
         if (count($cart)) {
             $cart[0]->product_quantity = $cart[0]->product_quantity + $request->quantity;
@@ -151,6 +155,7 @@ class AppController extends Controller
                 'product_name' => $product->product_name,
                 'product_image' => $product->image[0]->image,
                 'product_price' => $product->product_price,
+                'product_size' => $request->size,
                 'product_quantity' => $request->quantity,
             ]);
 
@@ -161,7 +166,7 @@ class AppController extends Controller
     public function updateQuantity(Request $request)
     {
         $user_id = auth()->user()->id;
-        $product = Cart::where([['user_id', '=', $user_id], ['product_id', '=', $request->product_id]])->get();
+        $product = Cart::where([['user_id', '=', $user_id], ['id', '=', $request->id]])->get();
 
         if (count($product)) {
             if ($request->action == 'min') {
@@ -180,12 +185,14 @@ class AppController extends Controller
 
     public function deleteCart(Request $request)
     {
-        Cart::where([['user_id', '=', auth()->user()->id], ['product_id', '=', $request->product_id]])->delete();
+        Cart::where([['user_id', '=', auth()->user()->id], ['id', '=', $request->id]])->delete();
         return response('deleted');
     }
 
     public function checkout(Request $request, $id, $product, $cart_id)
     {
+        $cart = json_decode(Cart::where(['user_id' => auth()->user()->id, 'id' => $request->cart_id])->first());
+
         $address = Address::where([['user_id', '=', auth()->user()->id], ['status', '=', 'true']])->first();
         $delivery = [];
 
@@ -241,9 +248,10 @@ class AppController extends Controller
         return view('checkout')
             ->with([
                 'title' => 'checkout',
-                'notif' => isset($notif) ? $notif->data : [],
+                'notif' => isset($notif) ? $notif->data : null,
                 'cart_id' => $cart_id,
                 'product' => Product::where('id', $id)->first(),
+                'product_size' => ($request->size ?: ($cart ? $cart->product_size : '')),
                 'quantity' => $request->quantity,
                 'cart' => Cart::where('user_id', auth()->user()->id)->get(),
                 'address' => Address::where('user_id', auth()->user()->id)->get(),

@@ -30,6 +30,8 @@ function alertError() {
     $('.error').delay(2000).fadeOut();
 }
 function addCart(id){
+    $('#load').show();
+    
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -39,15 +41,20 @@ function addCart(id){
     $.ajax({
         type: "post",
         url: window.location.origin + "/add-cart",
-        data: {'product_id' : id, 'quantity' : $('#quantity').val()},
+        data: {
+            'product_id' : id, 
+            'quantity' : $('#quantity').val(),
+            'size' : $('input[name=size]:checked').val()
+        },
         success: function (response) {
+            $('#load').hide();
             alertSuccess();
-
+            
             if (response == 'added') {
                 if ($("#cartAlertBadge").length) {
                     $('#cartAlertBadge').text(parseInt($('#cartAlertBadge').text()) + 1);
                 } else {
-                    $('#cartAlert').prepend(`
+                    $('#cartAlert').append(`
                       <span
                       class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-light text-main border-main"
                       style="font-size: 8px"
@@ -88,21 +95,34 @@ function minQuantityUpdate(id) {
     });
 
     if($('#quantity'+id).val() == 0){
-        $('.confirm').fadeIn('fast');
+        $('#confirm_delete_cart').fadeIn('fast');
 
         $('.confirm-cancel').click(function () { 
-            $('.confirm').fadeOut('fast');
+            $('#confirm_delete_cart').fadeOut('fast');
             $('#quantity'+id).val(1);
         });
 
         $('.is-confirm').click(function () { 
+            $('#load').show();
             $.ajax({
                 type: "post",
                 url: window.location.origin + "/delete-cart",
-                data: {'product_id' : id,},
+                data: {'id' : id,},
                 success: function (response) {
-                    $('#cart'+id).hide();
-                    $('.confirm').fadeOut('fast');
+                    $('#cart'+id).empty();
+                    
+                    if ($('#cartAlertBadge').text() == 1) {
+                        $('#cartAlertBadge').empty();
+                        $('#cartList').append(`
+                            <div class="text-center text-gray fw-bold"><i class="bi bi-cart-x-fill"></i> Keranjang Kosong</div>
+                            <a href="/" class="text-center fs-small text-main fw-bold">Belanja Sekarang.</a>
+                        `);
+                    } else {
+                        $('#cartAlertBadge').text(parseInt($('#cartAlertBadge').text()) - 1)
+                    }
+
+                    $('#load').hide();
+                    $('#confirm_delete_cart').fadeOut('fast');
                 }
             });
         });
@@ -111,7 +131,7 @@ function minQuantityUpdate(id) {
             type: "post",
             url: window.location.origin + "/update-quantity",
             data: {
-                'product_id' : id,
+                'id' : id,
                 'action' : 'min', 
                 'quantity' : $('#quantity'+id).val(),
             },
@@ -136,7 +156,7 @@ function addQuantityUpdate(id) {
         type: "post",
         url: window.location.origin + "/update-quantity",
         data: {
-            'product_id' : id,
+            'id' : id,
             'action' : 'add', 
             'quantity' : $('#quantity'+id).val(),
         },

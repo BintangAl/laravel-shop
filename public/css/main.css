@@ -84,6 +84,11 @@ body{background-color: #F5F5F5 !important;}
 a{text-decoration: none !important;}
 ul li{list-style-type: none;}
 
+input[type=radio]:checked ~ label {
+    background-color: #6435b1 !important;
+    color: #fff !important;
+}
+
 /* Hide Input Arrow Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {

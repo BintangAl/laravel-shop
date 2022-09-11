@@ -20,6 +20,7 @@ class CreateTransactionsTable extends Migration
             $table->string('reference')->unique();
             $table->string('invoice')->unique();
             $table->foreignId('product_id');
+            $table->string('product_size')->nullable();
             $table->bigInteger('quantity');
             $table->bigInteger('amount');
             $table->string('payment');

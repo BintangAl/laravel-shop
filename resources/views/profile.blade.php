@@ -71,13 +71,33 @@
     <div class="d-none d-lg-block">
         @include('partials.footer')
     </div>
-@endsection
 
-@section('js')
     @if (session()->has('successChangePassword'))
         <script>
             $('.success').fadeIn();
             $('.success').delay(2000).fadeOut();
+        </script>
+    @endif
+
+    @if ($title == 'address')
+        <script>
+            function valid() {
+                var name = $('input[name=nama_penerima]').val();
+                var phone = $('input[name=no_tlp]').val();
+                var address = $('input[name=alamat]').val();
+                var province = $('select[name=provinsi]').val();
+                var city = $('select[name=kota]').val();
+                var code = $('input[name=kodepos]').val();
+
+                if (name != '' && phone != '' && address != '' && province != '' && city != '' && code != '') {
+                    $('#btnAddAddress').removeAttr('disabled');
+                    $('#btnAddAddress').click(function() {
+                        load();
+                    });
+                } else {
+                    $('#btnAddAddress').attr('disabled', 'true');
+                }
+            }
         </script>
     @endif
 @endsection

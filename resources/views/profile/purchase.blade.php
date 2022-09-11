@@ -28,7 +28,8 @@
                 <div class="d-flex">
                     <img src="{{ $item->product->image[0]->image }}" width="50px" class="me-2">
                     <div class="w-100 text-truncate">
-                        <span>{{ $item->product->product_name }}</span>
+                        <span>{{ $item->product->product_name }}
+                            {{ $item->product_size ? '( ' . $item->product_size . ' )' : '' }}</span>
                         <div class="d-flex justify-content-between">
                             <div>x{{ $item->quantity }}</div>
                             <div>Rp {{ number_format($item->product->product_price) }}</div>

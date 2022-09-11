@@ -28,7 +28,7 @@ class UserController extends Controller
         return view('profile')
             ->with([
                 'title' => 'profile',
-                'notif' => isset($notif) ? $notif->data : [],
+                'notif' => isset($notif) ? $notif->data : null,
                 'cart' => Cart::where('user_id', auth()->user()->id)->get()
             ]);
     }
@@ -55,7 +55,7 @@ class UserController extends Controller
         return view('profile')
             ->with([
                 'title' => 'address',
-                'notif' => isset($notif) ? $notif->data : [],
+                'notif' => isset($notif) ? $notif->data : null,
                 'cart' => Cart::where('user_id', auth()->user()->id)->get(),
                 'address' => Address::where('user_id', auth()->user()->id)->latest()->get(),
                 'province' => json_decode(file_get_contents('asset/json/province.json'))->rajaongkir->results,
@@ -128,7 +128,7 @@ class UserController extends Controller
         return view('profile')
             ->with([
                 'title' => 'purchase',
-                'notif' => isset($notif) ? $notif->data : [],
+                'notif' => isset($notif) ? $notif->data : null,
                 'status' => $status,
                 'transaction' => $transaction,
                 'cart' => Cart::where('user_id', auth()->user()->id)->get()

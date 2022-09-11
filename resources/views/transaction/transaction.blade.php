@@ -87,6 +87,7 @@
 
             @include('partials.product-ordered', [
                 'product_id' => $product->id,
+                'product_size' => $transaction->product_size,
                 'quantity' => $transaction->quantity,
                 'product_image' => $product->image[0]->image,
                 'product_name' => $product->product_name,

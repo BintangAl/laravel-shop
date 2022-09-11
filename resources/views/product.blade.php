@@ -27,8 +27,24 @@
                             </div>
 
                             <form
-                                action="{{ route('checkout', [$product->id, strtolower(str_replace([' ', '/'], '_', $product->product_name)), '0']) }}"
+                                action="{{ route('checkout', [$product->id, strtolower(str_replace([' ', '/'], '_', $product->product_name)), 0]) }}"
                                 method="get">
+                                @if (isset($product->product_size))
+                                    <div class="d-flex mb-3 align-items-center">
+                                        <div class="fs-small text-gray me-3">Ukuran</div>
+
+                                        @foreach (json_decode($product->product_size) as $size)
+                                            <div class="me-2">
+                                                <input type="radio" class="btn-check" name="size"
+                                                    id="size{{ $size }}" value="{{ $size }}"
+                                                    {{ $loop->iteration == 1 ? 'checked' : '' }}>
+                                                <label class="btn btn-sm border-main shadow-none"
+                                                    for="size{{ $size }}">{{ $size }}</label>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
+
                                 <div class="d-flex mb-3 align-items-center">
                                     <div class="fs-small text-gray me-3">Kuantitas</div>
                                     <div class="input-group input-group-sm w-101 me-3">

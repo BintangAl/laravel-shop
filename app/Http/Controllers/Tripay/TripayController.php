@@ -112,6 +112,7 @@ class TripayController extends Controller
                 $trasaction->reference = $response->reference;
                 $trasaction->invoice = $merchantRef;
                 $trasaction->product_id = $product->id;
+                $trasaction->product_size = request('product_size');
                 $trasaction->quantity = request('quantity');
                 $trasaction->amount = $response->amount;
                 $trasaction->payment = explode('#', request('payment'))[0];

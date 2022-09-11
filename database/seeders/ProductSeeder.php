@@ -61,6 +61,7 @@ class ProductSeeder extends Seeder
                 • DEKA fashion selalu menjaga kualitas kerapihan jahit, sehingga produknya dijamin bagus
                 • Untuk pengiriman setiap hari dan cepat (minggu tetap ada pengiriman) 😊🙏
             ',
+            'product_size' => json_encode(['S', 'M', 'L', 'XL', 'XXL']),
             'product_stok' => '50',
             'product_sold' => '0',
             'category_id' => '4',

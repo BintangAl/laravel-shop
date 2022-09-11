@@ -8,7 +8,7 @@
         <hr class="my-2 row">
         @foreach ($address as $item)
             @if ($item->status == 'true')
-                <div class="bg-light sans align-items-center mb-3 px-2 py-3">
+                <div class="row bg-light sans align-items-center mb-3 px-2 py-3">
                     <div class="col-lg-7 col-12 mb-2 mb-lg-0">
                         <div class="d-block d-lg-flex mb-1">
                             <div class="fw-bold">{{ $item->nama_penerima }}</div>
@@ -30,7 +30,7 @@
         @endforeach
         @foreach ($address as $item)
             @if ($item->status != 'true')
-                <div class="bg-light sans align-items-center mb-3 px-2 py-3">
+                <div class="row bg-light sans align-items-center mb-3 px-2 py-3">
                     <div class="col-lg-7 col-12 mb-2 mb-lg-0">
                         <div class="d-block d-lg-flex mb-1">
                             <div class="fw-bold">{{ $item->nama_penerima }}</div>
@@ -63,25 +63,25 @@
                 <div class="modal-body p-4">
                     <h5 class="modal-title mb-3" id="addAddressLabel">Alamat Baru</h5>
 
-                    <form action="{{ route('add-address') }}" method="post" novalidate>
+                    <form action="{{ route('add-address') }}" method="post">
                         @csrf
                         <div class="d-flex mb-4">
                             <input type="text" name="nama_penerima" class="form-control shadow-none me-4"
-                                placeholder="Nama Lengkap" required>
+                                placeholder="Nama Lengkap" onkeyup="valid()" required>
                             <input type="text" name="no_tlp" class="form-control shadow-none"
-                                placeholder="Nomor Telepon" required>
+                                placeholder="Nomor Telepon" onkeyup="valid()" required>
                         </div>
                         <textarea class="form-control mb-4 shadow-none" cols="1" rows="1" placeholder="Alamat" name="alamat"
-                            required></textarea>
+                            onkeyup="valid()" required></textarea>
 
-                        <select class="mb-3" name="provinsi" placeholder="Provinsi" required>
+                        <select class="mb-3" name="provinsi" placeholder="Provinsi" onchange="valid()" required>
                             <option value="">Provinsi</option>
                             @foreach ($province as $item)
                                 <option value="{{ $item->province . '#' . $item->province_id }}">{{ $item->province }}
                                 </option>
                             @endforeach
                         </select>
-                        <select class="mb-3" name="kota" placeholder="Kota/Kabupaten" required>
+                        <select class="mb-3" name="kota" placeholder="Kota/Kabupaten" onchange="valid()" required>
                             <option value="">Kota/Kabupaten</option>
                             @foreach ($city as $item)
                                 <option value="{{ $item->city_name . '#' . $item->city_id }}">{{ $item->city_name }}
@@ -90,12 +90,13 @@
                         </select>
 
                         <input type="number" name="kodepos" class="form-control shadow-none mb-4"
-                            placeholder="Kode Pos" required>
+                            placeholder="Kode Pos" onkeyup="valid()" required>
 
                         <div class="d-flex justify-content-end">
                             <div class="btn bg-white me-2 border-0 bg-gray-hover rounded-0 px-4 text-dark-gray"
                                 data-bs-dismiss="modal">Nanti Saja</div>
-                            <button class="btn bg-main rounded-0 text-light px-5" onclick="load()">OK</button>
+                            <button class="btn bg-main rounded-0 text-light px-5" disabled
+                                id="btnAddAddress">OK</button>
                         </div>
                     </form>
                 </div>
