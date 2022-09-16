@@ -40,6 +40,8 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.bootstrap3.min.css"
         integrity="sha256-ze/OEYGcFbPRmvCnrSeKbRTtjG4vGLHXgOqsyLFTRjg=" crossorigin="anonymous" />
     <script src="/js/form-validation.js"></script>
+
+    @yield('jsHead')
 </head>
 
 <body>

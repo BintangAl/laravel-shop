@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Login</title>
@@ -8,24 +9,34 @@
     <link rel="stylesheet" href="/css/main.css">
     <link rel="stylesheet" href="/css/load.css">
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+        integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <style>
         /* input:focus{
             background-color: #EEF2F5 !important;
         } */
-        a.btn:hover{
+        a.btn:hover {
             background-color: #EEF2F5 !important;
         }
-        ul li{
-            list-style-type:inherit !important;
+
+        ul li {
+            list-style-type: inherit !important;
         }
     </style>
 </head>
-  <body style="background-color: #F5F5F5">
-    <div class="position-fixed bg-black-50 w-100 h-full" id="load"><div class="lds-ripple position-absolute top-50 start-50 translate-middle"><div></div><div></div></div></div>
+
+<body style="background-color: #F5F5F5">
+    <div class="position-fixed bg-black-50 w-100 h-full" id="load">
+        <div class="lds-ripple position-absolute top-50 start-50 translate-middle">
+            <div></div>
+            <div></div>
+        </div>
+    </div>
 
     <div class="container position-relative">
         <div class="position-absolute top-0 start-50 mt-3 translate-middle-x d-block d-lg-none">
@@ -49,36 +60,48 @@
                 <!-- Validation Errors -->
                 <x-auth-validation-errors class="mb-3 fs-small text-danger" :errors="$errors" />
 
-                <form action="{{ route('login') }}" method="POST">
+                <form action="{{ "$_SERVER[REQUEST_URI]" }}" method="POST">
                     @csrf
                     <div class="border border-1 rounded mb-2">
                         <div class="input-group input-group-lg border-bottom">
-                            <span class="input-group-text text-gray bg-white border-0" id="iconEmail" style="border-radius: 0; border-top-left-radius: 10px;"><i class="bi bi-envelope"></i></span>
+                            <span class="input-group-text text-gray bg-white border-0" id="iconEmail"
+                                style="border-radius: 0; border-top-left-radius: 10px;"><i
+                                    class="bi bi-envelope"></i></span>
                             <div class="form-floating">
-                                <input type="email" class="form-control bg-white border-0 shadow-none overpass" id="email" name="email" value="{{ old('email') }}" placeholder="Email address" onfocus="focusInput(this.id, '#iconEmail')">
+                                <input type="email" class="form-control bg-white border-0 shadow-none overpass"
+                                    id="email" name="email" value="{{ old('email') }}"
+                                    placeholder="Email address" onfocus="focusInput(this.id, '#iconEmail')">
                                 <label for="email" class="text-gray">Email address</label>
                             </div>
                         </div>
                         <div class="input-group input-group-lg">
-                            <span class="input-group-text text-gray bg-white border-0" style="border-radius: 0; border-bottom-left-radius: 10px"><i class="bi bi-lock"></i></span>
+                            <span class="input-group-text text-gray bg-white border-0"
+                                style="border-radius: 0; border-bottom-left-radius: 10px"><i
+                                    class="bi bi-lock"></i></span>
                             <div class="form-floating">
-                                <input type="password" class="form-control bg-white border-0 shadow-none overpass" id="password" name="password" placeholder="Password">
+                                <input type="password" class="form-control bg-white border-0 shadow-none overpass"
+                                    id="password" name="password" placeholder="Password">
                                 <label for="password" class="text-gray">Password</label>
                             </div>
                         </div>
                     </div>
-    
+
                     <div class="d-flex justify-content-between mb-4">
                         <div class="form-check">
-                            <input type="checkbox" class="form-check-input rounded-circle shadow-none" id="remember" name="remember">
+                            <input type="checkbox" class="form-check-input rounded-circle shadow-none" id="remember"
+                                name="remember">
                             <label class="form-check-label fs-small text-dark-gray" for="remember">Remember Me</label>
                         </div>
                         <a href="#" class="fs-small text-dark-gray">Forget Password?</a>
                     </div>
-    
+
                     <div class="d-lg-flex d-block px-2 px-lg-0 mb-4">
-                        <button class="col-lg-auto col-12 mb-3 mb-lg-0 btn bg-main shadow-sm text-light px-4 py-2 me-3 rounded-pill fs-small" onclick="$('#load').show();">Login Now</button>
-                        <a href="{{ route('register') }}" class="col-lg-auto col-12 mb-3 mb-lg-0 btn bg-white shadow-sm px-4 py-2 border-0 rounded-pill fs-small">Create Account</a>
+                        <button
+                            class="col-lg-auto col-12 mb-3 mb-lg-0 btn bg-main shadow-sm text-light px-4 py-2 me-3 rounded-pill fs-small"
+                            onclick="$('#load').show();">Login Now</button>
+                        <a href="{{ str_replace('login', 'register', "$_SERVER[REQUEST_URI]") }}"
+                            class="col-lg-auto col-12 mb-3 mb-lg-0 btn bg-white shadow-sm px-4 py-2 border-0 rounded-pill fs-small">Create
+                            Account</a>
                     </div>
                 </form>
 
@@ -91,17 +114,20 @@
 
 
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous">
+    </script>
     <script>
-        $(document).ready(function () {
+        $(document).ready(function() {
             function focusInput(id, icon) {
-            $('#'+id).removeClass('bg-white');
-            $(icon).removeClass('bg-white');
+                $('#' + id).removeClass('bg-white');
+                $(icon).removeClass('bg-white');
 
-            $('#'+id).addClass('bg-input-focus');
-            $(icon).addClass('bg-input-focus');
-        }
+                $('#' + id).addClass('bg-input-focus');
+                $(icon).addClass('bg-input-focus');
+            }
         });
     </script>
 </body>
+
 </html>

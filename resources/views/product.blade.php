@@ -1,5 +1,16 @@
 @extends('layouts.main')
 
+
+@section('jsHead')
+    @if (session()->has('action'))
+        <script>
+            $(document).ready(function() {
+                addCart("{{ session('product_id') }}", "{{ session('quantity') }}", "{{ session('size') }}")
+            });
+        </script>
+    @endif
+@endsection
+
 @section('container')
     <div class="position-relative">
         @include('partials.nav')

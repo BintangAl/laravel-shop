@@ -79,6 +79,10 @@ class UserController extends Controller
             'kodepos' => $request->kodepos
         ]);
 
+        if (isset($request->link)) {
+            return redirect($request->link);
+        }
+
         return back();
     }
 

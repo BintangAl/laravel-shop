@@ -1,3 +1,6 @@
+function tes(id, quan, size) {
+    alert('tes');
+}
 function arrowScroll(element) {
     $('.arrow-left').click(function(event) {
         event.preventDefault();
@@ -29,7 +32,7 @@ function alertError() {
     $('.error').fadeIn();
     $('.error').delay(2000).fadeOut();
 }
-function addCart(id){
+function addCart(id, quantity, size){
     $('#load').show();
     
     $.ajaxSetup({
@@ -43,8 +46,8 @@ function addCart(id){
         url: window.location.origin + "/add-cart",
         data: {
             'product_id' : id, 
-            'quantity' : $('#quantity').val(),
-            'size' : $('input[name=size]:checked').val()
+            'quantity' : quantity ? quantity : $('#quantity').val(),
+            'size' : size ? size : $('input[name=size]:checked').val()
         },
         success: function (response) {
             $('#load').hide();
@@ -64,7 +67,7 @@ function addCart(id){
             }
         }, error: function (error) {
             if(error.status == 401){
-                window.location = window.location.origin + '/login';
+                window.location = window.location.origin + '/login?link=' + location.href + '&action=cart&product_id=' + id + '&quantity=' + $('#quantity').val() + '&size=' + $('input[name=size]:checked').val();
             } else {
                 alertError();
             }

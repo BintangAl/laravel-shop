@@ -63,7 +63,7 @@
                 <div class="modal-body p-4">
                     <h5 class="modal-title mb-3" id="addAddressLabel">Alamat Baru</h5>
 
-                    <form action="{{ route('add-address') }}" method="post">
+                    <form action="{{ route('add-address') . '?link=' . request()->get('link') }}" method="post">
                         @csrf
                         <div class="d-flex mb-4">
                             <input type="text" name="nama_penerima" class="form-control shadow-none me-4"

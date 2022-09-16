@@ -89,6 +89,21 @@
                 var city = $('select[name=kota]').val();
                 var code = $('input[name=kodepos]').val();
 
+                if (province != '') {
+                    $('#cityOptions').addClass('d-none');
+                    // $.getJSON("/asset/json/city.json", function(data) {
+                    //     var options;
+                    //     $.each(data.rajaongkir.results, function(key, value) {
+                    //         if (value.province_id == province.split('#')[1]) {
+                    //             options = '<option value="' + value.city_name + '#' + value.city_id +
+                    //                 '">' + value.city_name + '</option>';
+                    //         }
+                    //     });
+
+                    //     console.log(options);
+                    // });
+                }
+
                 if (name != '' && phone != '' && address != '' && province != '' && city != '' && code != '') {
                     $('#btnAddAddress').removeAttr('disabled');
                     $('#btnAddAddress').click(function() {

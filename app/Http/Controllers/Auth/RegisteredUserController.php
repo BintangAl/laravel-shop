@@ -49,6 +49,11 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(RouteServiceProvider::HOME);
+        if (isset($request->link)) {
+            $redirect = new AuthRedirectController();
+            return redirect($request->link)->with($redirect->redirectAuth());
+        } else {
+            return redirect(RouteServiceProvider::HOME);
+        }
     }
 }
