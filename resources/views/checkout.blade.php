@@ -10,23 +10,28 @@
         </div>
 
         <div class="container mt-3 overpass">
-            <form action="{{ count($address) ? route('transaction') : '' }}" method="post">
+            <form
+                action="{{ count($address) ? route('transaction') . str_replace('/checkout', '', "$_SERVER[REQUEST_URI]") : '' }}"
+                method="post">
                 @csrf
-                @if ($cart_id != 0)
-                    <input type="hidden" name="cart_id" value="{{ $cart_id }}">
-                @endif
                 @include('partials.address-option')
-                @include('partials.product-ordered', [
-                    'product_id' => $product->id,
-                    'quantity' => $quantity,
-                    'product_image' => $product->image[0]->image,
-                    'product_name' => $product->product_name,
-                    'product_price' => $product->product_price,
-                ])
+
+                @include('partials.product-ordered')
+
+                <div class="bg-white shadow-sm p-3 mb-3">
+                    <div class="text-main pointer" data-bs-toggle="collapse" data-bs-target=".notes-active"
+                        aria-expanded="false" aria-controls="notes"><i class="fa-solid fa-pencil"></i> Tambahkan Catatan
+                    </div>
+                    <div class="notes-active collapse" id="notes">
+                        <textarea name="notes" class="form-control shadow-none" placeholder="Tulisan pesan..."
+                            onkeyup="notesChange(this.value)"></textarea>
+                    </div>
+                </div>
 
                 @include('partials.delivery-option')
 
-                <div class="bg-white shadow-sm mb-3">
+                <div class="bg-white
+                            shadow-sm mb-3">
                     @include('partials.payment-method')
                     @include('partials.subtotal')
                     <div class="p-3 d-flex justify-content-end">

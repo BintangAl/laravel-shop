@@ -82,7 +82,12 @@
                                 <input type="email" class="form-control bg-white border-0 shadow-none overpass"
                                     id="email" name="email" value="{{ old('email') }}"
                                     placeholder="Email address">
-                                <label for="email" class="text-gray">Email address</label>
+                                <label for="email" class="text-gray">
+                                    <div>Email address</div>
+                                    @error('email')
+                                        <div class="small text-danger">{{ $message }}</div>
+                                    @enderror
+                                </label>
                             </div>
                         </div>
                         <div class="input-group input-group-lg border-bottom">

@@ -21,7 +21,7 @@ class ImageSeeder extends Seeder
         ]);
 
         DB::table('images')->insert([
-            'image' => '/asset/img/product/67776650.jpeg',
+            'image' => '/asset/img/product/67776650.jpg',
             'category' => 'product',
             'product_id' => '2'
         ]);

@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Events\NotificationCreated;
 use App\Http\Controllers\API\ApiController;
 use App\Http\Controllers\Tripay\TripayController;
-use App\Models\Address;
 use App\Models\Cart;
+use App\Models\Customer;
 use App\Models\Notification;
 use App\Models\Product;
 use App\Models\Transaction;
@@ -19,12 +19,27 @@ class TransactionController extends Controller
     {
         $tripay = new TripayController();
 
-        $customer = Address::find(str_replace('address', '', request('address_id')));
-        $product = Product::with('image')->find(request('product_id'));
+        $customer = Customer::find(str_replace('address', '', request('address_id')));
+        $carts = [];
+        foreach (request('cart') as $cart_id) {
+            $carts[] = json_decode(Cart::with('productDetail')->find($cart_id));
+        }
+
+        $products = [];
+        foreach ($carts as $cart) {
+            $products[] = [
+                'sku' => $cart->product_detail->sku,
+                'name' => $cart->product_detail->product_name,
+                'price' => $cart->price,
+                'quantity' => $cart->quantity,
+                'product_url' => url('product/' . $cart->product_detail->id . '/' . strtolower(str_replace([' ', '/'], '_', $cart->product_detail->product_name))),
+                'image' => $cart->product_detail->image[0]->image,
+            ];
+        }
 
         $delivery = explode('#', request('delivery'));
 
-        $transaction = $tripay->RequestTransaction($customer, $product, $delivery);
+        $transaction = $tripay->RequestTransaction($customer, $carts, $products, $delivery);
 
         return redirect(url('payment/' . $transaction->merchant_ref));
     }
@@ -65,8 +80,12 @@ class TransactionController extends Controller
     public function detailTransaction($invoice)
     {
         $tripay = new TripayController();
-        $transaction = Transaction::where('invoice', $invoice)->first();
+        $transaction = json_decode(Transaction::with('orders')->where('invoice', $invoice)->first());
         $payment = json_decode($tripay->getChannel($transaction->payment));
+        $subtotal = 0;
+        foreach ($transaction->orders as $total) {
+            $subtotal += ($total->price * $total->quantity);
+        }
 
         $est = 24 * explode('-', $transaction->delivery_estimation)[1];
         $estimation = date_create($transaction->created_at);
@@ -87,8 +106,9 @@ class TransactionController extends Controller
                     'notif' => isset($notif) ? $notif->data : null,
                     'cart' => Cart::where('user_id', auth()->user()->id)->get(),
                     'transaction' => $transaction,
-                    'customer' => Address::find($transaction->customer_id),
-                    'product' => Product::find($transaction->product_id),
+                    'customer' => Customer::find($transaction->customer_id),
+                    'products' => $transaction->orders,
+                    'subtotal' => $subtotal,
                     'payment' => (isset($payment)) ? $payment->data[0] : [],
                     'estimation' => date_format($estimation, 'D, d M Y')
                 ]);
@@ -168,24 +188,25 @@ class TransactionController extends Controller
 
     public function done($invoice)
     {
-        $transaction = Transaction::where('invoice', $invoice)->first();
-        $product = Product::where('id', $transaction->product_id)->first();
-        //dd($transaction->first());
+        $transaction = Transaction::with('orders')->where('invoice', $invoice)->first();
 
         if ($transaction->user_id == auth()->user()->id) {
             if ($transaction->status == 'Dikirim') {
                 $transaction->update(['status' => 'Selesai']);
-                $product->update([
-                    'product_stok' => $product->product_stok - $transaction->quantity,
-                    'product_sold' => $product->product_sold + $transaction->quantity
-                ]);
+                $transaction = json_decode(json_encode($transaction));
+                foreach ($transaction->orders as $order) {
+                    Product::where('id', $order->product_detail->id)->first()->update([
+                        'product_stok' => $order->product_detail->product_stok - $order->quantity,
+                        'product_sold' => $order->product_detail->product_sold + $order->quantity,
+                    ]);
+                }
 
                 $notif = [
                     'message' => 'MunnShop Order Accepted!',
                     'user_id' => $transaction->user_id,
                     'invoice' => $transaction->invoice,
-                    'product' => $product->product_name,
-                    'image' => url($product->image[0]->image),
+                    'product' => $transaction->orders[0]->product_detail->product_name,
+                    'image' => url($transaction->orders[0]->product_detail->image[0]->image),
                     'from' => 'munnshop',
                     'to' => 'admin'
                 ];

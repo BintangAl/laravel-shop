@@ -8,7 +8,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Cart;
 use App\Models\Notification;
 use App\Models\Transaction;
+use App\Models\TransactionDetail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class TripayController extends Controller
 {
@@ -38,13 +40,24 @@ class TripayController extends Controller
         return ($response) ?: $error;
     }
 
-    public function RequestTransaction($customer, $product, $delivery)
+    public function RequestTransaction($customer, $cart, $product, $delivery)
     {
+        $trasactionInfo = DB::select("SHOW TABLE STATUS LIKE 'transactions'");
+        $trasactionNextID = $trasactionInfo[0]->Auto_increment;
+
         $apiKey       = config('services.tripay.api_key');
         $privateKey   = config('services.tripay.private_key');
         $merchantCode = config('services.tripay.merchant_id');
         $merchantRef  = "INV-" . time();
         $amount       = request('total');
+        $delivery_service = [
+            [
+                'sku'         => 'JNE-' . $delivery[0],
+                'name'        => $delivery[1],
+                'price'       => request('total_ongkir'),
+                'quantity'    => 1,
+            ],
+        ];
 
         $data = [
             'method'         => explode('#', request('payment'))[0],
@@ -53,22 +66,7 @@ class TripayController extends Controller
             'customer_name'  => $customer->nama_penerima,
             'customer_email' => auth()->user()->email,
             'customer_phone' => $customer->no_tlp,
-            'order_items'    => [
-                [
-                    'sku'         => $product->id,
-                    'name'        => $product->product_name,
-                    'price'       => $product->product_price,
-                    'quantity'    => request('quantity'),
-                    'product_url' => url('product/' . $product->id . '/' . strtolower(str_replace([' ', '/'], '_', $product->product_name))),
-                    'image_url'   => $product->product_image,
-                ],
-                [
-                    'sku'         => 'JNE-' . $delivery[0],
-                    'name'        => $delivery[1],
-                    'price'       => request('total_ongkir'),
-                    'quantity'    => 1,
-                ],
-            ],
+            'order_items'    => array_merge($delivery_service, $product),
             // 'return_url'   => 'https://domainanda.com/redirect',
             'expired_time' => (time() + (24 * 60 * 60)), // 24 jam
             'signature'    => hash_hmac('sha256', $merchantCode . $merchantRef . $amount, $privateKey)
@@ -111,9 +109,7 @@ class TripayController extends Controller
                 $trasaction->customer_id = $customer->id;
                 $trasaction->reference = $response->reference;
                 $trasaction->invoice = $merchantRef;
-                $trasaction->product_id = $product->id;
-                $trasaction->product_size = request('product_size');
-                $trasaction->quantity = request('quantity');
+                $trasaction->notes = request('notes');
                 $trasaction->amount = $response->amount;
                 $trasaction->payment = explode('#', request('payment'))[0];
                 $trasaction->delivery_service = 'JNE ' . $delivery[0] . ' (' . $delivery[1] . ')';
@@ -123,12 +119,24 @@ class TripayController extends Controller
                 $trasaction->expire = date('Y-m-d H:i:s', $response->expired_time);
                 $trasaction->save();
 
+                foreach ($cart as $item) {
+                    TransactionDetail::create([
+                        'transaction_id' => $trasactionNextID,
+                        'product_id' => $item->product_detail->id,
+                        'product_size' => $item->product_size,
+                        'product_color' => $item->product_color,
+                        'price' => $item->price,
+                        'quantity' => $item->quantity,
+                        'total_price' =>  (int) $item->product_detail->product_price * $item->quantity,
+                    ]);
+                }
+
                 $notif = [
                     'message' => 'MunnShop New Order!',
                     'user_id' => auth()->user()->id,
                     'invoice' => $merchantRef,
-                    'product' => $product->product_name,
-                    'image' => url($product->image[0]->image),
+                    'product' => $cart[0]->product_detail->product_name,
+                    'image' => url($cart[0]->product_detail->image[0]->image),
                     'from' => 'munnshop',
                     'to' => 'admin'
                 ];
@@ -137,8 +145,8 @@ class TripayController extends Controller
                 $api->Notification('create', $notif);
                 NotificationCreated::dispatch(array_merge($notif, ['id' => $api->NotificationNextId()]));
 
-                if (isset(request()->cart_id)) {
-                    Cart::find(request('cart_id'))->delete();
+                foreach ($cart as $item) {
+                    Cart::find($item->id)->delete();
                 }
 
                 return $response;

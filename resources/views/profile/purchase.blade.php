@@ -16,39 +16,79 @@
 </div>
 
 @if (count($transaction))
+
     @foreach ($transaction as $item)
-        <div class="bg-white shadow-sm mb-3 pointer"
-            onclick="window.location='{{ route('detail-transaction', [$item->invoice]) }}'; load()">
-            <div class="p-3 border-bottom">
-                <div class="d-flex justify-content-between border-bottom pb-2 mb-3">
+        <div class="bg-white shadow-sm mb-3">
+            <div class="p-3 border-bottom pointer"
+                onclick="window.location='{{ route('detail-transaction', [$item->invoice]) }}'; load()">
+                <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
                     <div class="fw-bold">{{ $item->invoice }}</div>
                     <div class="text-main text-uppercase">{{ $item->status }}</div>
                 </div>
 
-                <div class="d-flex">
-                    <img src="{{ $item->product->image[0]->image }}" width="50px" class="me-2">
-                    <div class="w-100 text-truncate">
-                        <span>{{ $item->product->product_name }}
-                            {{ $item->product_size ? '( ' . $item->product_size . ' )' : '' }}</span>
-                        <div class="d-flex justify-content-between">
-                            <div>x{{ $item->quantity }}</div>
-                            <div>Rp {{ number_format($item->product->product_price) }}</div>
+                @foreach ($item->orders as $key => $order)
+                    @if ($key != 0)
+                        <div class="product collapse">
+                    @endif
+                    <div
+                        class="d-flex {{ count($item->orders) > 1 ? 'border-bottom' : '' }} {{ $key != array_key_last($item->orders) && $key != 0 ? 'mb-3' : '' }} {{ $key == 1 ? 'mt-3' : '' }}">
+                        <img src="{{ $order->product_detail->image[0]->image }}" width="50px" class="me-2"
+                            style="height: 50px">
+                        <div class="w-100 text-truncate">
+                            <span>{{ $order->product_detail->product_name }}
+                                {{ $order->product_size ? '( ' . $order->product_size . ' )' : '' }}</span>
+                            <div class="d-flex justify-content-between">
+                                <div class="text-gray">
+                                    <span>Rp {{ number_format($order->price) }}</span>
+                                    <span class="mx-1">x</span>
+                                    <span>{{ $order->quantity }}</span>
+                                </div>
+                                @if ($item->status != 'Selesai')
+                                    <div>Rp
+                                        {{ number_format($order->price * $order->quantity) }}
+                                    </div>
+                                @else
+                                    <a href="{{ route('product', [$order->product_detail->id, strtolower(str_replace([' ', '/'], '_', $order->product_detail->product_name))]) }}"
+                                        class="btn bg-main fs-small text-light mb-2">Beli Lagi</a>
+                                @endif
+                            </div>
                         </div>
                     </div>
-                </div>
+                    @if ($key != 0)
             </div>
-            <div class="p-2">
-                <div class="text-end">Total Pesanan:
-                    <span class="text-main fs-5 ms-4">
-                        Rp {{ number_format($item->amount) }}
-                    </span>
-                </div>
-            </div>
+    @endif
+@endforeach
+</div>
+<div class="p-2 position-relative">
+    @if (count($item->orders) > 1)
+        <div class="bg-gray arrow-down rounded-circle text-center p-1 position-absolute top-0 start-50 translate-middle"
+            style="width: 30px; height: 30px;" data-bs-toggle="collapse" data-bs-target=".product" aria-expanded="false"
+            aria-controls="product" onclick="arrowDown()">
+            <i class="fa-solid fa-angle-down"></i>
         </div>
-    @endforeach
-@else
-    <div class="text-center">
-        <div class="text-gray fw-bold"><i class="fa-solid fa-clipboard-list"></i> Belum ada pesanan</div>
-        <a href="{{ url('/') }}" class="fs-small text-main fw-bold">Belanja Sekarang.</a>
+    @endif
+
+    <div
+        class="d-flex {{ $item->status == 'Selesai' ? 'justify-content-between' : 'justify-content-end' }} align-items-center">
+        @if ($item->status == 'Selesai')
+            <div class="text-gray fs-small">
+                <span class="d-block d-md-inline-block">Pesanan diterima :</span>
+                <span>{{ date('d F Y H:m', strtotime($item->updated_at)) }}</span>
+            </div>
+        @endif
+        <div class="text-end">
+            <span @if ($item->status == 'Selesai') class="d-block d-md-inline-block" @endif>Total Pesanan :</span>
+            <span class="text-main fs-5 ms-4">
+                Rp {{ number_format($item->amount) }}
+            </span>
+        </div>
     </div>
+</div>
+</div>
+@endforeach
+@else
+<div class="text-center">
+    <div class="text-gray fw-bold"><i class="fa-solid fa-clipboard-list"></i> Belum ada pesanan</div>
+    <a href="{{ url('/') }}" class="fs-small text-main fw-bold">Belanja Sekarang.</a>
+</div>
 @endif

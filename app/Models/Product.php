@@ -11,6 +11,8 @@ class Product extends Model
 
     protected $guarded = ['id'];
 
+    protected $hidden = ['created_at', 'updated_at'];
+
     public function category()
     {
         return $this->belongsTo(Category::class);
@@ -19,5 +21,15 @@ class Product extends Model
     public function image()
     {
         return $this->hasMany(Image::class);
+    }
+
+    public function color()
+    {
+        return $this->hasMany(ProductColor::class);
+    }
+
+    public function size()
+    {
+        return $this->hasMany(ProductSize::class);
     }
 }

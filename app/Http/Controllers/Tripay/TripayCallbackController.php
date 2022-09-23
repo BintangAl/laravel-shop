@@ -39,11 +39,14 @@ class TripayCallbackController extends Controller
             |--------------------------------------------------------------------------
             */
         if (1 === (int) $data->is_closed_payment) {
-            $invoice = Transaction::where('reference', $uniqueRef)->first();
-            $product = Product::with('image')->find($invoice->product_id);
+            $invoice = Transaction::with('orders')->where('reference', $uniqueRef)->first();
 
             if (!$invoice) {
                 return 'No invoice found for this unique ref: ' . $uniqueRef;
+            }
+
+            if ($invoice->status == 'Dibatalkan') {
+                return 'This invoice is canceled.';
             }
 
             $invoice->update(['status' => (($status == 'UNPAID') ? 'Belum Bayar' : (($status == 'PAID') ? 'Dikemas' : 'Gagal'))]);
@@ -52,8 +55,8 @@ class TripayCallbackController extends Controller
                 'message' => 'MunnShop Payment ' . ($status == 'PAID' ? 'Success!' : 'Failed!'),
                 'user_id' => $invoice->user_id,
                 'invoice' => $invoice->invoice,
-                'product' => $product->product_name,
-                'image' => url($product->image[0]->image),
+                'product' => json_decode(json_encode($invoice))->orders[0]->product_detail->product_name,
+                'image' => url(json_decode(json_encode($invoice))->orders[0]->product_detail->image[0]->image),
                 'from' => 'munnshop',
                 'to' => 'admin'
             ];
@@ -66,8 +69,8 @@ class TripayCallbackController extends Controller
                 'message' => 'Pembayaran ' . ($status == 'PAID' ? 'Berhasil!' : 'Gagal!'),
                 'user_id' => $invoice->user_id,
                 'invoice' => $invoice->invoice,
-                'product' => $product->product_name,
-                'image' => url($product->image[0]->image),
+                'product' => json_decode(json_encode($invoice))->orders[0]->product_detail->product_name,
+                'image' => url(json_decode(json_encode($invoice))->orders[0]->product_detail->image[0]->image),
                 'from' => 'munnshop',
                 'to' => 'munnshop'
             ];

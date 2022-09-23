@@ -19,7 +19,7 @@
             @endif
         @endforeach
     @else
-        <a href="{{ route('address') . "?link=$_SERVER[REQUEST_URI]" }}"
+        <a href="{{ route('address') . str_replace('/checkout', '', "$_SERVER[REQUEST_URI]") }}"
             class="btn btn-sm rounded-0 bg-main px-3 text-light"><i class="fa-solid fa-plus"></i> Tambah Alamat</a>
     @endif
 </div>

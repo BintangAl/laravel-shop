@@ -54,7 +54,7 @@ Route::post('/add-cart', [AppController::class, 'addCart'])->name('add-cart')->m
 Route::post('/update-quantity', [AppController::class, 'updateQuantity'])->name('update-quantity')->middleware('auth');
 Route::post('/delete-cart', [AppController::class, 'deleteCart'])->name('delete-cart')->middleware('auth');
 
-Route::get('/checkout/{id}/{product}/{cart_id}', [AppController::class, 'checkout'])->name('checkout')->middleware('auth');
+Route::get('/checkout', [AppController::class, 'checkout'])->name('checkout')->middleware('auth');
 
 Route::post('/transaction', [TransactionController::class, 'transaction'])->name('transaction')->middleware('auth');
 

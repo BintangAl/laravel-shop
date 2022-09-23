@@ -25,6 +25,7 @@ Route::post('/delivery-option/{key}/{destination}', [ApiController::class, 'Deli
 Route::post('/statistic', [ApiController::class, 'Statistic']);
 Route::post('/users', [ApiController::class, 'Users']);
 Route::post('/products', [ApiController::class, 'Products']);
+Route::post('/product-variant', [ApiController::class, 'ProductColor']);
 Route::post('/categories', [ApiController::class, 'CategorieProduct']);
 Route::post('/transactions', [ApiController::class, 'Transactions']);
 

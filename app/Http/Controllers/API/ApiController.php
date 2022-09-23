@@ -5,11 +5,13 @@ namespace App\Http\Controllers\API;
 use App\Events\NotificationCreated;
 use Carbon\Carbon;
 use App\Http\Controllers\Controller;
-use App\Models\Address;
 use App\Models\Category;
+use App\Models\Customer;
 use App\Models\Image;
 use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Models\ProductColor;
+use App\Models\ProductSize;
 use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Support\Facades\File;
@@ -92,7 +94,7 @@ class ApiController extends Controller
     public function SelectAddress($key, $id)
     {
         if ($key == config('services.app_api.key')) {
-            $address = Address::find($id);
+            $address = Customer::find($id);
 
             return response([
                 'name' => $address->nama_penerima,
@@ -231,33 +233,56 @@ class ApiController extends Controller
                     return response()->json([
                         'status' => 200,
                         'message' => 'Success Get Data',
-                        'data' => Product::with(['image', 'category'])->where('product_name', 'Like', '%' . $request->search . '%')->latest()->paginate(),
+                        'data' => Product::with(['image', 'category', 'size', 'color'])
+                            ->where('product_name', 'Like', '%' . $request->search . '%')
+                            ->orWhere('sku', 'Like', '%' . $request->search . '%')
+                            ->latest()->paginate(),
                     ], 200);
                 } elseif (isset($request->id)) {
                     return response()->json([
                         'status' => 200,
                         'message' => 'Success Get Data',
-                        'data' => Product::with(['image', 'category'])->where('id', $request->id)->get(),
+                        'data' => Product::with(['image', 'category', 'size', 'color'])->where('id', $request->id)->get(),
                     ], 200);
                 } else {
                     return response()->json([
                         'status' => 200,
                         'message' => 'Success Get Data',
-                        'data' => Product::with(['image', 'category'])->paginate(10)
+                        'data' => Product::with(['image', 'category', 'size', 'color'])->paginate(10)
                     ], 200);
                 }
             } elseif ($request->action == 'create') {
                 //dd($request->all());
                 $validate = $request->validate([
+                    'sku' => 'required',
                     'product_name' => 'required',
                     'product_price' => 'required',
                     'product_detail' => 'required',
-                    'product_size' => 'max:255',
                     'product_stok' => 'required',
                     'category_id' => 'required'
                 ]);
 
                 Product::create($validate);
+
+                if (isset($request->size_custom)) {
+                    foreach (json_decode($request->size_custom) as $size) {
+                        ProductSize::create([
+                            'product_id' => Product::latest()->first()->id,
+                            'size' => explode('#', $size)[0],
+                            'price' => explode('#', $size)[1],
+                        ]);
+                    }
+                }
+
+                if (isset($request->size)) {
+                    foreach (json_decode($request->size) as $size) {
+                        ProductSize::create([
+                            'product_id' => Product::latest()->first()->id,
+                            'size' => $size,
+                            'price' => $request->product_price,
+                        ]);
+                    }
+                }
                 return response()->json([
                     'status' => 200,
                     'message' => 'Product Created.',
@@ -281,19 +306,61 @@ class ApiController extends Controller
                     'message' => 'Product Updated.',
                     'data' => $validate
                 ], 200);
+            } elseif ($request->action == 'add-size') {
+                if ($request->data) {
+                    if ($request->product_id) {
+                        ProductSize::where('product_id', $request->product_id)->delete();
+                        if ($request->data) {
+                            foreach (json_decode($request->data) as $size) {
+                                ProductSize::create([
+                                    'product_id' => $size->product_id,
+                                    'size' => $size->size,
+                                    'price' => $size->price
+                                ]);
+                            }
+                        }
+
+                        return response()->json([
+                            'status' => 200,
+                            'message' => 'Product Size Added.',
+                            'data' => $request->data ?: json_decode($request->data)
+                        ], 200);
+                    } else {
+                        return response()->json([
+                            'status' => 400,
+                            'message' => 'Product Id not found.',
+                            'data' => ''
+                        ], 400);
+                    }
+                } else {
+                    return response()->json([
+                        'status' => 400,
+                        'message' => 'Data array not found.',
+                        'data' => ''
+                    ], 400);
+                }
             } elseif ($request->action == 'delete') {
                 if (isset($request->id)) {
                     $product = Product::where('id', $request->id);
                     $image = Image::where('product_id', $request->id);
+                    $product_size = ProductSize::where('product_id', $request->id);
+                    $product_color = ProductColor::where('product_id', $request->id);
                     if (count($product->get())) {
                         $product->delete();
+                        $product_size->delete();
 
-                        $path = [];
+                        $pathProductImage = [];
+                        $pathProductColor = [];
                         foreach ($image->get('image') as $img) {
-                            $path[] = public_path($img->image);
+                            $pathProductImage[] = public_path($img->image);
                         }
-                        File::delete($path);
+                        foreach ($product_color->get('image') as $imgColor) {
+                            $pathProductColor[] = public_path($imgColor->image);
+                        }
+                        File::delete($pathProductImage);
+                        File::delete($pathProductColor);
                         $image->delete();
+                        $product_color->delete();
 
                         return response()->json([
                             'status' => 200,
@@ -303,7 +370,7 @@ class ApiController extends Controller
                     } else {
                         return response()->json([
                             'status' => 400,
-                            'message' => 'ID not found.',
+                            'message' => 'Product not found.',
                             'data' => []
                         ], 400);
                     }
@@ -330,24 +397,79 @@ class ApiController extends Controller
         }
     }
 
+    public function ProductColor(Request $request)
+    {
+        if ($request->key == config('services.app_api.key')) {
+            $image = $request->File('image');
+
+            if ($image) {
+                $new_name = rand() . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('/asset/img/product'), $new_name);
+            }
+
+            if ($request->action == 'create') {
+                ProductColor::create([
+                    'product_id' => ($request->id ?: Product::latest()->first()->id),
+                    'color' => $request->color,
+                    'price' => $request->price,
+                    'image' => ($image ? '/asset/img/product/' . $new_name : null),
+                ]);
+
+                $message = 'Variant Color Created.';
+            } elseif ($request->action == 'update') {
+                if ($request->update == 'color') {
+                    ProductColor::find($request->id)->update(['color' => $request->color]);
+                } elseif ($request->update == 'price') {
+                    ProductColor::find($request->id)->update(['price' => $request->price]);
+                } elseif ($request->update == 'image') {
+                    $color = ProductColor::find($request->id);
+                    if (isset($color->image)) {
+                        unlink(public_path($color->image));
+                    }
+                    $color->update(['image' => '/asset/img/product/' . $new_name]);
+                }
+
+                $message = 'Variant Color Updated.';
+            } elseif ($request->action == 'delete') {
+                $color = ProductColor::find($request->id);
+                if (isset($color->image)) {
+                    unlink(public_path($color->image));
+                }
+                $color->delete();
+                $message = 'Variant Color Deleted';
+            }
+
+            return response()->json([
+                'status' => 200,
+                'message' => $message ?: '',
+                'data' => request()->all()
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 400,
+                'message' => 'key not found.',
+                'data' => []
+            ], 400);
+        }
+    }
+
     public function Transactions(Request $request)
     {
         if ($request->key == config('services.app_api.key')) {
             if ($request->action == "list") {
                 if (isset($request->invoice)) {
-                    $data = Transaction::with(['user', 'product'])->where('invoice', 'Like', '%' . $request->invoice . '%')->latest()->paginate();
+                    $data = Transaction::with(['user', 'customer', 'orders'])->where('invoice', 'Like', '%' . $request->invoice . '%')->first();
 
                     return response()->json([
                         'status' => 200,
                         'message' => 'Success Get Data',
-                        'cust' => (($data[0] != '') ? Address::find($data[0]->customer_id) : []),
                         'data' => $data,
                     ], 200);
                 } else {
                     return response()->json([
                         'status' => 200,
                         'message' => 'Success Get Data',
-                        'data' => Transaction::with(['user', 'product'])->latest()->paginate(10)
+                        'data' => Transaction::with(['user', 'orders'])->latest()->paginate(10)
                     ], 200);
                 }
             } elseif ($request->action == 'update') {

@@ -5078,7 +5078,7 @@ window.Echo.private('notificationFromAdmin.' + $(".column").attr("id")).listen('
     function showNotificationMunnShop() {
       const notification = new Notification(event.notification.message, {
           body: 'Invoice : '+ event.notification.invoice +'\nProduct : ' + event.notification.product,
-          icon: 'http://127.0.0.1:8001' + event.notification.image
+          icon: event.notification.image
       })
     } 
 
@@ -5198,7 +5198,7 @@ window.Echo.private('notificationFromMunnShop.' + $(".column").attr("id")).liste
     if (event.notification.from == 'munnshop' && event.notification.to == 'munnshop') {
       new Notification(event.notification.message, {
           body: 'Invoice : '+ event.notification.invoice +'\nProduct : ' + event.notification.product,
-          icon: 'http://127.0.0.1:8001' + event.notification.image
+          icon: event.notification.image
       })
     }
   }

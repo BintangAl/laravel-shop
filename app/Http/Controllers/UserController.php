@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\API\ApiController;
 use App\Http\Controllers\Tripay\TripayController;
-use App\Models\Address;
 use App\Models\Cart;
+use App\Models\Customer;
 use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -57,7 +57,7 @@ class UserController extends Controller
                 'title' => 'address',
                 'notif' => isset($notif) ? $notif->data : null,
                 'cart' => Cart::where('user_id', auth()->user()->id)->get(),
-                'address' => Address::where('user_id', auth()->user()->id)->latest()->get(),
+                'address' => Customer::where('user_id', auth()->user()->id)->latest()->get(),
                 'province' => json_decode(file_get_contents('asset/json/province.json'))->rajaongkir->results,
                 'city' => json_decode(file_get_contents('asset/json/city.json'))->rajaongkir->results
             ]);
@@ -65,10 +65,10 @@ class UserController extends Controller
 
     public function addAddress(Request $request)
     {
-        $address = Address::where('user_id', auth()->user()->id)->get();
+        $address = Customer::where('user_id', auth()->user()->id)->get();
         $request->validate(['*' => 'required']);
 
-        Address::create([
+        Customer::create([
             'user_id' => auth()->user()->id,
             'status' => (count($address)) ? 'false' : 'true',
             'nama_penerima' => $request->nama_penerima,
@@ -81,6 +81,12 @@ class UserController extends Controller
 
         if (isset($request->link)) {
             return redirect($request->link);
+        } elseif (isset($request->cart)) {
+            $link = '/checkout?';
+            foreach (request('cart') as $key => $value) {
+                $link .= 'cart%5B%5D=' . $value . '&';
+            }
+            return redirect(url($link));
         }
 
         return back();
@@ -88,8 +94,8 @@ class UserController extends Controller
 
     public function mainAddress(Request $request)
     {
-        Address::where('user_id', auth()->user()->id)->update(['status' => 'false']);
-        Address::where('id', $request->main_address)->update(['status' => 'true']);
+        Customer::where('user_id', auth()->user()->id)->update(['status' => 'false']);
+        Customer::where('id', $request->main_address)->update(['status' => 'true']);
 
         return back();
     }
@@ -114,11 +120,11 @@ class UserController extends Controller
 
     public function purchase($status)
     {
-        $transaction = Transaction::where('user_id', auth()->user()->id)->latest()->get();
+        $transaction = Transaction::with('orders')->where('user_id', auth()->user()->id)->latest()->get();
 
         if ($status != 'all') {
             $purchase_status = (($status == 'unpaid') ? 'Belum Bayar' : (($status == 'packed') ? 'Dikemas' : (($status == 'sent') ? 'Dikirim' : (($status == 'done') ? 'Selesai' : (($status == 'cancel') ? 'Dibatalkan' : 'Gagal')))));
-            $transaction = Transaction::where([['user_id', '=', auth()->user()->id], ['status', '=', $purchase_status]])->latest()->get();
+            $transaction = Transaction::with('orders')->where([['user_id', '=', auth()->user()->id], ['status', '=', $purchase_status]])->latest()->get();
         }
 
         $api = new ApiController();
@@ -129,12 +135,14 @@ class UserController extends Controller
             ]));
         }
 
+        // dd(json_decode($transaction)[0]->orders[0]->product_detail);
+
         return view('profile')
             ->with([
                 'title' => 'purchase',
                 'notif' => isset($notif) ? $notif->data : null,
                 'status' => $status,
-                'transaction' => $transaction,
+                'transaction' => json_decode($transaction),
                 'cart' => Cart::where('user_id', auth()->user()->id)->get()
             ]);
     }

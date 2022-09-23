@@ -13,7 +13,8 @@
         </div>
         <div>Estimasi <span id="delivery_etd">{{ $delivery[0]->costs[0]->cost[0]->etd }}</span> hari kerja.</div>
     @else
-        <a href="{{ route('address') . "?link=$_SERVER[REQUEST_URI]" }}" class="text-danger fs-small">Alamat tidak
+        <a href="{{ route('address') . str_replace('/checkout', '', "$_SERVER[REQUEST_URI]") }}"
+            class="text-danger fs-small">Alamat tidak
             ditemukan!</a>
     @endif
 </div>

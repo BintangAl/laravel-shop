@@ -5,15 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Image extends Model
+class Customer extends Model
 {
     use HasFactory;
 
     protected $guarded = ['id'];
-    protected $hidden = ['category', 'created_at', 'updated_at'];
+    protected $hidden = ['created_at', 'updated_at'];
 
-    public function product()
+    public function user()
     {
-        return $this->belongsTo(Product::class);;
+        return $this->belongsTo(User::class);
     }
 }

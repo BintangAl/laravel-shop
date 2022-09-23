@@ -33,8 +33,13 @@
     <div id="app-field">
         <div class="bg-white p-3 text-main border-bottom mb-2">
             <div class="container d-flex justify-content-between align-items-center">
-                <span>Transaction</span>
-                <span class="fw-bold pointer" onclick="window.location.reload()">{{ $transaction->invoice }}</span>
+                <a href="{{ route('purchase', ['all']) }}" class="text-main">Transaction</a>
+                <span class="pointer text-end" onclick="window.location.reload()">
+                    <div class="fw-bold">{{ $transaction->invoice }}</div>
+                    <div class="fs-xsmall text-dark"
+                        title="Pesanan dibuat : {{ date('d F Y H:m', strtotime($transaction->expire)) }}">
+                        {{ date('d F Y H:m', strtotime($transaction->expire)) }}</div>
+                </span>
             </div>
         </div>
 
@@ -84,15 +89,15 @@
                 <div id="recipient_address">{{ $customer->alamat }}, {{ explode('#', $customer->kota)[0] }},
                     {{ explode('#', $customer->provinsi)[0] }}, ID {{ $customer->kodepos }}</div>
             </div>
+            @include('partials.product-ordered')
 
-            @include('partials.product-ordered', [
-                'product_id' => $product->id,
-                'product_size' => $transaction->product_size,
-                'quantity' => $transaction->quantity,
-                'product_image' => $product->image[0]->image,
-                'product_name' => $product->product_name,
-                'product_price' => $product->product_price,
-            ])
+            @if ($transaction->notes)
+                <div class="bg-white shadow-sm p-3 mb-3">
+                    <div class="text-main mb-3"><i class="bi bi-sticky-fill"></i> Catatan
+                    </div>
+                    <p>{{ $transaction->notes }}</p>
+                </div>
+            @endif
 
             @if ($transaction->status == 'Belum Bayar')
                 <div class="bg-white shadow-sm p-3 mb-3">
@@ -132,7 +137,7 @@
                     <div class="d-flex justify-content-between">
                         <div class="fs-small">Subtotal untuk Produk</div>
                         <div class="fs-small fw-bold">Rp
-                            {{ number_format($product->product_price * $transaction->quantity) }}
+                            {{ number_format($subtotal) }}
                         </div>
                     </div>
                     <div class="d-flex justify-content-between">
@@ -188,7 +193,7 @@
             @endif
 
             <button class="btn bg-gray border-0 w-100 mb-3 rounded-0"
-                onclick="window.location='{{ route('purchase', ['all']) }}'">Kembali</button>
+                onclick="window.location='{{ route('purchase', [$transaction->status == 'Selesai' ? 'done' : 'all']) }}'">Kembali</button>
         </div>
     </div>
 

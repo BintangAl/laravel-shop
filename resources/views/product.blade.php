@@ -5,7 +5,8 @@
     @if (session()->has('action'))
         <script>
             $(document).ready(function() {
-                addCart("{{ session('product_id') }}", "{{ session('quantity') }}", "{{ session('size') }}")
+                addCart("{{ session('product_id') }}", "{{ session('action') }}", "{{ session('quantity') }}",
+                    "{{ session('size') }}", "{{ session('color') }}")
             });
         </script>
     @endif
@@ -25,34 +26,64 @@
                 <div class="bg-white p-3 mb-4">
                     <div class="row">
                         <div class="col-lg-4 col-12 mb-3 text-center">
-                            @if (count($product->image) > 1)
+                            @if (count($image) > 1)
                                 @include('partials.product-image')
                             @else
-                                <img src="{{ $product->image[0]->image }}" class="img-fluid border">
+                                <img src="{{ $image[0]->image }}" class="img-fluid border">
                             @endif
                         </div>
                         <div class="col-lg-8 col-12">
                             <div class="mb-3">
                                 <div class="sans fs-4 fw-bold mb-2">{{ $product->product_name }}</div>
-                                <div class="text-main fs-3 fw-bold">Rp {{ number_format($product->product_price) }}</div>
+                                <div class="text-main fs-3 fw-bold" id="productPrice">Rp
+                                    {{ number_format($product->product_price) }}</div>
                             </div>
 
-                            <form
-                                action="{{ route('checkout', [$product->id, strtolower(str_replace([' ', '/'], '_', $product->product_name)), 0]) }}"
-                                method="get">
-                                @if (isset($product->product_size))
-                                    <div class="d-flex mb-3 align-items-center">
+                            <form action="" method="get">
+                                @if (count($product->size))
+                                    @php $sizes = json_decode($product->size); @endphp
+                                    <div class="{{ count($sizes) > 5 ? 'd-block' : 'd-flex align-items-center' }} mb-3">
                                         <div class="fs-small text-gray me-3">Ukuran</div>
+                                        <div class="{{ count($sizes) > 5 ? 'row' : 'd-flex align-items-center' }}">
+                                            <input type="hidden" id="sizePrice" value="{{ $product->product_price }}">
+                                            @foreach ($sizes as $item)
+                                                <div class="{{ count($sizes) > 5 ? 'col-auto' : 'me-2' }}">
+                                                    <input type="radio" class="btn-check" name="size"
+                                                        onchange="productSize({{ $item->price }})"
+                                                        id="size{{ $item->size }}" value="{{ $item->id }}"
+                                                        {{ $loop->iteration == 1 ? 'checked' : '' }}>
+                                                    <label class="btn btn-sm border-main shadow-none"
+                                                        for="size{{ $item->size }}"
+                                                        onclick="$('#sizePrice').val('{{ $item->price }}')">{{ $item->size }}</label>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endif
 
-                                        @foreach (json_decode($product->product_size) as $size)
-                                            <div class="me-2">
-                                                <input type="radio" class="btn-check" name="size"
-                                                    id="size{{ $size }}" value="{{ $size }}"
-                                                    {{ $loop->iteration == 1 ? 'checked' : '' }}>
-                                                <label class="btn btn-sm border-main shadow-none"
-                                                    for="size{{ $size }}">{{ $size }}</label>
-                                            </div>
-                                        @endforeach
+                                @if (count($product->color))
+                                    @php $colors = json_decode($product->color); @endphp
+                                    <div class="{{ count($colors) > 4 ? 'd-block' : 'd-flex align-items-center' }} mb-3">
+                                        <div class="fs-small text-gray me-3">Warna</div>
+                                        <div class="{{ count($colors) > 4 ? 'row' : 'd-flex align-items-center' }}">
+                                            <input type="hidden" id="colorPrice" value="{{ $product->product_price }}">
+                                            @foreach ($colors as $item)
+                                                <div class="{{ count($colors) > 4 ? 'col-auto mb-2 mb-md-0' : 'me-2' }}">
+                                                    <input type="radio" class="btn-check" name="color"
+                                                        id="color{{ $item->color }}" value="{{ $item->id }}"
+                                                        {{ $loop->iteration == 1 ? 'checked' : '' }}
+                                                        onchange="productColor({{ $item->price }})">
+                                                    <label class="btn btn-sm border-main shadow-none p-1"
+                                                        for="color{{ $item->color }}"
+                                                        onclick="$('#colorPrice').val('{{ $item->price }}'); @if ($item->image) productImage('{{ $item->id }}') @endif">
+                                                        @if ($item->image)
+                                                            <img src="{{ url($item->image) }}" width="25px">
+                                                        @endif
+                                                        <span class="text-uppercase me-1">{{ $item->color }}</span>
+                                                    </label>
+                                                </div>
+                                            @endforeach
+                                        </div>
                                     </div>
                                 @endif
 
@@ -72,11 +103,14 @@
                                     <div class="btn btn-sm fw-bold bg-main-50 border-main text-main me-3 rounded-1 p-2 px-3"
                                         id="add-cart" onclick="addCart('{{ $product->id }}')"><i
                                             class="fa-solid fa-cart-plus"></i> Masukan Keranjang</div>
-                                    <button type="submit" class="btn btn-sm fw-bold bg-main text-light rounded-1 p-2 px-3"
+                                    <button type="button" onclick="addCart('{{ $product->id }}', 'buyNow')"
+                                        class="btn btn-sm fw-bold bg-main text-light rounded-1 p-2 px-3"
                                         onclick="load()">Beli Sekarang</button>
                                 </div>
 
-                                <div class="fs-small text-gray">{{ $product->product_sold }} Terjual</div>
+                                @if ($product->product_sold > 0)
+                                    <div class="fs-small text-gray">{{ $product->product_sold }} Terjual</div>
+                                @endif
                             </form>
                         </div>
                     </div>

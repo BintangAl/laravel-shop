@@ -63,34 +63,44 @@
                 <div class="modal-body p-4">
                     <h5 class="modal-title mb-3" id="addAddressLabel">Alamat Baru</h5>
 
-                    <form action="{{ route('add-address') . '?link=' . request()->get('link') }}" method="post">
+                    <form
+                        action="{{ route('add-address') . (request()->get('link') ? '?link=' . request()->get('link') : '') . (request()->get('cart') ? str_replace('/user/address', '', "$_SERVER[REQUEST_URI]") : '') }}"
+                        method="post" class="needs-validation" novalidate>
                         @csrf
                         <div class="d-flex mb-4">
                             <input type="text" name="nama_penerima" class="form-control shadow-none me-4"
-                                placeholder="Nama Lengkap" onkeyup="valid()" required>
-                            <input type="text" name="no_tlp" class="form-control shadow-none"
-                                placeholder="Nomor Telepon" onkeyup="valid()" required>
+                                placeholder="Nama Lengkap" onkeyup="validAddress()" required>
+                            <input type="number" name="no_tlp" class="form-control shadow-none"
+                                placeholder="Nomor Telepon" onkeyup="validAddress()" required>
                         </div>
                         <textarea class="form-control mb-4 shadow-none" cols="1" rows="1" placeholder="Alamat" name="alamat"
-                            onkeyup="valid()" required></textarea>
+                            onkeyup="validAddress()" required></textarea>
 
-                        <select class="mb-3" name="provinsi" placeholder="Provinsi" onchange="valid()" required>
-                            <option value="">Provinsi</option>
-                            @foreach ($province as $item)
-                                <option value="{{ $item->province . '#' . $item->province_id }}">{{ $item->province }}
-                                </option>
-                            @endforeach
-                        </select>
-                        <select class="mb-3" name="kota" placeholder="Kota/Kabupaten" onchange="valid()" required>
-                            <option value="">Kota/Kabupaten</option>
-                            @foreach ($city as $item)
-                                <option value="{{ $item->city_name . '#' . $item->city_id }}">{{ $item->city_name }}
-                                </option>
-                            @endforeach
-                        </select>
+                        <div class="province-options-box">
+                            <select class="mb-3" name="provinsi" placeholder="Provinsi"
+                                onchange="validAddress();getCountry(this.value)" required>
+                                <option value="">Provinsi</option>
+                                @foreach ($province as $item)
+                                    <option value="{{ $item->province . '#' . $item->province_id }}">
+                                        {{ $item->province }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="city-options-box">
+                            <select class="mb-3" name="kota" placeholder="Kota/Kabupaten" id="cityOptions"
+                                onchange="validAddress()" required>
+                                <option value="">Kota/Kabupaten</option>
+                                @foreach ($city as $item)
+                                    <option value="{{ $item->city_name . '#' . $item->city_id }}">
+                                        {{ $item->city_name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
 
                         <input type="number" name="kodepos" class="form-control shadow-none mb-4"
-                            placeholder="Kode Pos" onkeyup="valid()" required>
+                            placeholder="Kode Pos" onkeyup="validAddress()" required>
 
                         <div class="d-flex justify-content-end">
                             <div class="btn bg-white me-2 border-0 bg-gray-hover rounded-0 px-4 text-dark-gray"

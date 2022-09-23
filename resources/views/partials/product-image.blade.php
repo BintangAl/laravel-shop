@@ -12,16 +12,16 @@
 <div id="carouselIndicators" class="carousel slide border" data-bs-ride="true">
     <div class="carousel-indicators">
         <div class="carousel-indicators">
-            @if (count($product->image))
+            @if (count($image))
                 @php $i = 0; @endphp
-                @foreach ($product->image as $item)
+                @foreach ($image as $key => $item)
                     <button type="button" data-bs-target="#carouselIndicators" data-bs-slide-to="{{ $i }}"
-                        class="{{ $i == 0 ? 'active' : '' }} bg-main"
+                        class="{{ $i == 0 ? 'active' : '' }} bg-main {{ isset($item->color) ? 'is-color color' . $item->id : 'is-product' }}"
                         @if ($i == 0) aria-current="true" @endif
                         aria-label="Slide {{ $loop->iteration }}"></button>
 
                     @php $i++ @endphp
-                    @if ($loop->iteration >= count($product->image))
+                    @if ($loop->iteration >= count($image))
                         @php break; @endphp
                     @endif
                 @endforeach
@@ -34,8 +34,9 @@
         </div>
     </div>
     <div class="carousel-inner">
-        @foreach ($product->image as $item)
-            <div class="carousel-item {{ $loop->iteration == 1 ? 'active' : '' }}">
+        @foreach ($image as $item)
+            <div class="carousel-item {{ $loop->iteration == 1 ? 'active' : '' }} {{ isset($item->color) ? 'is-color color' . $item->id : 'is-product' }}"
+                data-bs-interval='false'>
                 <img src="{{ $item->image }}" class="d-block w-100">
             </div>
         @endforeach

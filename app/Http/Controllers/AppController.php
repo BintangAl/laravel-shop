@@ -6,14 +6,17 @@ use App\Events\NotificationCreated;
 use App\Http\Controllers\API\ApiController;
 use Carbon\Carbon;
 use App\Http\Controllers\Tripay\TripayController;
-use App\Models\Address;
 use App\Models\Cart;
 use App\Models\Category;
+use App\Models\Customer;
 use App\Models\Image;
 use App\Models\Product;
+use App\Models\ProductColor;
+use App\Models\ProductSize;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 class AppController extends Controller
 {
@@ -110,6 +113,7 @@ class AppController extends Controller
                     'title' => 'product',
                     'notif' => isset($notif) ? $notif->data : null,
                     'product' => $product,
+                    'image' => array_merge(json_decode($product->image), json_decode($product->color)),
                     'cart' => (Auth::check()) ? Cart::where('user_id', auth()->user()->id)->get() : [],
                     'detail' => explode("\n", $product->product_detail),
                     'recomendation' => Category::with('product')->find($product->category_id)->product
@@ -133,7 +137,7 @@ class AppController extends Controller
             ->with([
                 'title' => 'cart',
                 'notif' => isset($notif) ? $notif->data : null,
-                'cart' => Cart::where('user_id', auth()->user()->id)->get()
+                'cart' => json_decode(Cart::with('productDetail')->where('user_id', auth()->user()->id)->latest('updated_at')->get())
             ]);
     }
 
@@ -141,23 +145,41 @@ class AppController extends Controller
     {
         $user_id = auth()->user()->id;
         $product = Product::where('id', $request->product_id)->first();
-        $cart = Cart::where([['user_id', '=', $user_id], ['product_id', '=', $product->id], ['product_size', '=', $request->size]])->get();
+        $size = ProductSize::find($request->size_id);
+        $color = ProductColor::find($request->color_id);
+        $cart = Cart::where([['user_id', '=', $user_id], ['product_id', '=', $product->id], ['product_size', '=', ($size ? $size->size : null)], ['product_color', '=', ($color ? $color->color : null)]])->get();
 
         if (count($cart)) {
-            $cart[0]->product_quantity = $cart[0]->product_quantity + $request->quantity;
+            $cart[0]->quantity = $cart[0]->quantity + $request->quantity;
             $cart[0]->save();
+
+            if ($request->type == 'buyNow') {
+                Session::flash('buyNow', $product->product_price * $cart[0]->quantity);
+            }
 
             return response('updated');
         } else {
+            $price = $product->product_price;
+            if ($size && $color) {
+                $price = max($size->price, $color->price);
+            } else if ($size) {
+                $price = $size->price;
+            } elseif ($color) {
+                $price = $color->price;
+            }
+
             Cart::create([
                 'user_id' => $user_id,
                 'product_id' => $product->id,
-                'product_name' => $product->product_name,
-                'product_image' => $product->image[0]->image,
-                'product_price' => $product->product_price,
-                'product_size' => $request->size,
-                'product_quantity' => $request->quantity,
+                'product_size' => ($size ? $size->size : null),
+                'product_color' => ($color ? $color->color : null),
+                'price' => $price,
+                'quantity' => $request->quantity,
             ]);
+
+            if ($request->type == 'buyNow') {
+                Session::flash('buyNow', $product->product_price * $request->quantity);
+            }
 
             return response('added');
         }
@@ -166,21 +188,21 @@ class AppController extends Controller
     public function updateQuantity(Request $request)
     {
         $user_id = auth()->user()->id;
-        $product = Cart::where([['user_id', '=', $user_id], ['id', '=', $request->id]])->get();
+        $product = Cart::with('productDetail')->where([['user_id', '=', $user_id], ['id', '=', $request->id]])->get();
 
         if (count($product)) {
             if ($request->action == 'min') {
                 if ($request->quantity != 0) {
-                    $product[0]->product_quantity = $product[0]->product_quantity - 1;
+                    $product[0]->quantity = $product[0]->quantity - 1;
                     $product[0]->save();
                 }
             } elseif ($request->action == 'add') {
-                $product[0]->product_quantity = $product[0]->product_quantity + 1;
+                $product[0]->quantity = $product[0]->quantity + 1;
                 $product[0]->save();
             }
         }
 
-        return response('updated');
+        return response($product[0]);
     }
 
     public function deleteCart(Request $request)
@@ -189,11 +211,23 @@ class AppController extends Controller
         return response('deleted');
     }
 
-    public function checkout(Request $request, $id, $product, $cart_id)
+    public function checkout(Request $request)
     {
-        $cart = json_decode(Cart::where(['user_id' => auth()->user()->id, 'id' => $request->cart_id])->first());
+        if (!$request->cart) {
+            abort(404);
+        }
 
-        $address = Address::where([['user_id', '=', auth()->user()->id], ['status', '=', 'true']])->first();
+        $carts = [];
+        foreach ($request->cart as $cart_id) {
+            $carts[] = json_decode(Cart::with('productDetail')->find($cart_id));
+        }
+
+        $subtotal = 0;
+        foreach ($carts as $total) {
+            $subtotal += ($total->price * $total->quantity);
+        }
+
+        $address = Customer::where([['user_id', '=', auth()->user()->id], ['status', '=', 'true']])->first();
         $delivery = [];
 
         if ($address) {
@@ -248,13 +282,12 @@ class AppController extends Controller
         return view('checkout')
             ->with([
                 'title' => 'checkout',
-                'notif' => isset($notif) ? $notif->data : null,
-                'cart_id' => $cart_id,
-                'product' => Product::where('id', $id)->first(),
-                'product_size' => ($request->size ?: ($cart ? $cart->product_size : '')),
-                'quantity' => $request->quantity,
                 'cart' => Cart::where('user_id', auth()->user()->id)->get(),
-                'address' => Address::where('user_id', auth()->user()->id)->get(),
+                'notif' => isset($notif) ? $notif->data : null,
+                'cart_id' => $request->cart,
+                'products' => $carts,
+                'subtotal' => $subtotal,
+                'address' => Customer::where('user_id', auth()->user()->id)->get(),
                 'delivery' => $delivery,
                 'channel' => $channel
             ]);

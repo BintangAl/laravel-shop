@@ -117,6 +117,10 @@
                                                 class="bi bi-bell-slash-fill"></i> Tidak ada notifikasi.
                                         </div>
                                     @endif
+                                @else
+                                    <div class="text-center fs-small text-gray p-2 fw-bold" id="notifNull"><i
+                                            class="bi bi-bell-slash-fill"></i> Tidak ada notifikasi.
+                                    </div>
                                 @endif
                             </div>
                         </ul>

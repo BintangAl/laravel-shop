@@ -16,12 +16,10 @@ class CreateTransactionsTable extends Migration
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id');
-            $table->bigInteger('customer_id');
+            $table->foreignId('customer_id');
             $table->string('reference')->unique();
             $table->string('invoice')->unique();
-            $table->foreignId('product_id');
-            $table->string('product_size')->nullable();
-            $table->bigInteger('quantity');
+            $table->text('notes')->nullable();
             $table->bigInteger('amount');
             $table->string('payment');
             $table->string('no_resi')->nullable();

@@ -15,6 +15,7 @@ class ProductSeeder extends Seeder
     public function run()
     {
         DB::table('products')->insert([
+            'sku' => '#REF' . rand(1000, 9999),
             'product_name' => 'WATER RESIST G-Shock GWG 1000 Gshock Digital Double Time Rubber Jam Tangan Pria',
             'product_price' => '49300',
             'product_detail' => '
@@ -40,6 +41,7 @@ class ProductSeeder extends Seeder
         ]);
 
         DB::table('products')->insert([
+            'sku' => '#REF' . rand(1000, 9999),
             'product_name' => 'KEMEJA WANITA KATUN TWILL 30s - 3023',
             'product_price' => '57500',
             'product_detail' => '
@@ -61,13 +63,14 @@ class ProductSeeder extends Seeder
                 • DEKA fashion selalu menjaga kualitas kerapihan jahit, sehingga produknya dijamin bagus
                 • Untuk pengiriman setiap hari dan cepat (minggu tetap ada pengiriman) 😊🙏
             ',
-            'product_size' => json_encode(['S', 'M', 'L', 'XL', 'XXL']),
+            // 'product_size' => json_encode(['S', 'M', 'L', 'XL', 'XXL']),
             'product_stok' => '50',
             'product_sold' => '0',
             'category_id' => '4',
         ]);
 
         DB::table('products')->insert([
+            'sku' => '#REF' . rand(1000, 9999),
             'product_name' => 'DaraFactory | Khimar Jersey / Khimar Pinguin Pet Antem Premium',
             'product_price' => '26499',
             'product_detail' => '
@@ -102,6 +105,7 @@ class ProductSeeder extends Seeder
         ]);
 
         DB::table('products')->insert([
+            'sku' => '#REF' . rand(1000, 9999),
             'product_name' => 'Magdiel - Heels Kaca Tali Wanita / Sandal Tali Hak kaca 5CM',
             'product_price' => '67000',
             'product_detail' => '
@@ -123,6 +127,7 @@ class ProductSeeder extends Seeder
         ]);
 
         DB::table('products')->insert([
+            'sku' => '#REF' . rand(1000, 9999),
             'product_name' => '[HONYAN] Tas Selempang Wanita Slingbag Quilted Shoulder Bag Import - Dea Sling Bag',
             'product_price' => '155900',
             'product_detail' => '
@@ -143,6 +148,7 @@ class ProductSeeder extends Seeder
         ]);
 
         DB::table('products')->insert([
+            'sku' => '#REF' . rand(1000, 9999),
             'product_name' => 'SEPATU VANS OLDSKOOL HITAM SEPATU PRIA SEPATU WANITA SEPATU SEKOLAH TERLARIS SEPATU MAIN',
             'product_price' => '55500',
             'product_detail' => '
@@ -193,6 +199,7 @@ class ProductSeeder extends Seeder
         ]);
 
         DB::table('products')->insert([
+            'sku' => '#REF' . rand(1000, 9999),
             'product_name' => 'Kacamata Kotak Hitam Korean Fashion Sunglassess Wanita/Pria unisex',
             'product_price' => '14554',
             'product_detail' => '
@@ -212,6 +219,7 @@ class ProductSeeder extends Seeder
         ]);
 
         DB::table('products')->insert([
+            'sku' => '#REF' . rand(1000, 9999),
             'product_name' => 'GHbag Klub New Arrival - Tas Ransel Kulit IAC Backpack Up to 15 inch - Tas Pria Tas Wanita Daypack',
             'product_price' => '99000',
             'product_detail' => '
@@ -233,6 +241,7 @@ class ProductSeeder extends Seeder
         ]);
 
         DB::table('products')->insert([
+            'sku' => '#REF' . rand(1000, 9999),
             'product_name' => 'Erigo Short Shirt Jazlyn Black',
             'product_price' => ' 99000',
             'product_detail' => "

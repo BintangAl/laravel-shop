@@ -5,9 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Address extends Model
+class ProductColor extends Model
 {
     use HasFactory;
-
     protected $guarded = ['id'];
+
+    protected $hidden = ['created_at', 'updated_at'];
 }
